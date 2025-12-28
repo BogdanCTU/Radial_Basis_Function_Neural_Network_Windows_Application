@@ -1,0 +1,2 @@
+# Radial_Basis_Function_Neural_Network_Windows_Application
+Machine Learning RFBN Radial Basis Function Neural Network Windows Form Application
