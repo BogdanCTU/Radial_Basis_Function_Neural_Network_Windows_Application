@@ -31,7 +31,6 @@
         {
             ButtonsPannel = new Panel();
             TestButton = new MaterialSkin.Controls.MaterialButton();
-            richTextBox1 = new RichTextBox();
             RichTextBoxOutput = new RichTextBox();
             ButtonsPannel.SuspendLayout();
             SuspendLayout();
@@ -63,14 +62,7 @@
             TestButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
             TestButton.UseAccentColor = false;
             TestButton.UseVisualStyleBackColor = true;
-            // 
-            // richTextBox1
-            // 
-            richTextBox1.Location = new Point(210, 118);
-            richTextBox1.Name = "richTextBox1";
-            richTextBox1.Size = new Size(100, 96);
-            richTextBox1.TabIndex = 2;
-            richTextBox1.Text = "";
+            TestButton.Click += TestButton_Click;
             // 
             // RichTextBoxOutput
             // 
@@ -86,7 +78,6 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(RichTextBoxOutput);
-            Controls.Add(richTextBox1);
             Controls.Add(ButtonsPannel);
             Name = "TestingPage";
             Size = new Size(875, 548);
@@ -97,47 +88,8 @@
 
         #endregion
 
-
-
-
-
-
-
-        #region Data Access ---------------------------------------------------------
-
-        /// <summary>
-        /// LoadCsv
-        /// </summary>
-        /// <param name="filePath"></param>
-        /// <returns></returns>
-        public (List<double[]> Inputs, List<double> Targets) LoadCsv(string filePath)
-        {
-            var lines = File.ReadAllLines(filePath).Skip(1); // Skip header
-            var inputs = new List<double[]>();
-            var targets = new List<double>();
-
-            foreach (var line in lines)
-            {
-                var parts = line.Split(';');
-                // Indexes 0-7 are inputs (8 features), Index 8 is Class
-                double[] rowInput = new double[8];
-                for (int i = 0; i < 8; i++)
-                {
-                    rowInput[i] = double.Parse(parts[i]);
-                }
-
-                inputs.Add(rowInput);
-                targets.Add(double.Parse(parts[8]));
-            }
-
-            return (inputs, targets);
-        }
-
-        #endregion
-
         private Panel ButtonsPannel;
         private MaterialSkin.Controls.MaterialButton TestButton;
-        private RichTextBox richTextBox1;
         private RichTextBox RichTextBoxOutput;
     }
 }
