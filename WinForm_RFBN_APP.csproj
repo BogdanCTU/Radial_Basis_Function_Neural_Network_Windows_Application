@@ -18,6 +18,12 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Pages\ManualTestingPage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+  </ItemGroup>
+
 	<ItemGroup>
 		<None Update="train_80k.csv">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>

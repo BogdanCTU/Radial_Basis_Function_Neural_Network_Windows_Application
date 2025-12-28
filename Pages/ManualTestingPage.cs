@@ -4,12 +4,12 @@ using System.Globalization;
 
 namespace WinForm_RFBN_APP
 {
-    public partial class TestingPage : UserControl
+    public partial class ManualTestingPage : UserControl
     {
 
         #region Constructor ---------------------------------------------------------
 
-        public TestingPage()
+        public ManualTestingPage()
         {
             InitializeComponent();
         }

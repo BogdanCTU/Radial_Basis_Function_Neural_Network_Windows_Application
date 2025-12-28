@@ -1,6 +1,6 @@
 ﻿namespace WinForm_RFBN_APP
 {
-    partial class TestingPage
+    partial class ManualTestingPage
     {
 
         #region Component Designer generated code -----------------------------------
