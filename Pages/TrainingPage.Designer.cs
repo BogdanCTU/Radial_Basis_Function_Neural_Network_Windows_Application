@@ -30,6 +30,7 @@
         private void InitializeComponent()
         {
             ButtonsPannel = new Panel();
+            CleanButton = new MaterialSkin.Controls.MaterialButton();
             TrainButton = new MaterialSkin.Controls.MaterialButton();
             RichTextBoxOutput = new RichTextBox();
             panel1 = new Panel();
@@ -39,7 +40,6 @@
             LearningRateTextBox = new MaterialSkin.Controls.MaterialTextBox();
             HiddenNeuronsTextBox = new MaterialSkin.Controls.MaterialTextBox();
             EpochsTextBox = new MaterialSkin.Controls.MaterialTextBox();
-            CleanButton = new MaterialSkin.Controls.MaterialButton();
             ButtonsPannel.SuspendLayout();
             panel1.SuspendLayout();
             SuspendLayout();
@@ -53,6 +53,26 @@
             ButtonsPannel.Name = "ButtonsPannel";
             ButtonsPannel.Size = new Size(100, 400);
             ButtonsPannel.TabIndex = 0;
+            // 
+            // CleanButton
+            // 
+            CleanButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            CleanButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            CleanButton.Depth = 0;
+            CleanButton.HighEmphasis = true;
+            CleanButton.Icon = null;
+            CleanButton.Location = new Point(17, 54);
+            CleanButton.Margin = new Padding(4, 6, 4, 6);
+            CleanButton.MouseState = MaterialSkin.MouseState.HOVER;
+            CleanButton.Name = "CleanButton";
+            CleanButton.NoAccentTextColor = Color.Empty;
+            CleanButton.Size = new Size(68, 36);
+            CleanButton.TabIndex = 1;
+            CleanButton.Text = "Clean";
+            CleanButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            CleanButton.UseAccentColor = false;
+            CleanButton.UseVisualStyleBackColor = true;
+            CleanButton.Click += CleanButton_Click;
             // 
             // TrainButton
             // 
@@ -77,9 +97,9 @@
             // RichTextBoxOutput
             // 
             RichTextBoxOutput.Dock = DockStyle.Bottom;
-            RichTextBoxOutput.Location = new Point(100, 59);
+            RichTextBoxOutput.Location = new Point(100, 62);
             RichTextBoxOutput.Name = "RichTextBoxOutput";
-            RichTextBoxOutput.Size = new Size(600, 341);
+            RichTextBoxOutput.Size = new Size(600, 338);
             RichTextBoxOutput.TabIndex = 1;
             RichTextBoxOutput.Text = "";
             // 
@@ -91,10 +111,10 @@
             panel1.Controls.Add(LearningRateTextBox);
             panel1.Controls.Add(HiddenNeuronsTextBox);
             panel1.Controls.Add(EpochsTextBox);
-            panel1.Dock = DockStyle.Top;
+            panel1.Dock = DockStyle.Fill;
             panel1.Location = new Point(100, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(600, 53);
+            panel1.Size = new Size(600, 62);
             panel1.TabIndex = 2;
             // 
             // materialLabel3
@@ -183,26 +203,6 @@
             EpochsTextBox.TabIndex = 0;
             EpochsTextBox.Text = "100";
             EpochsTextBox.TrailingIcon = null;
-            // 
-            // CleanButton
-            // 
-            CleanButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            CleanButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
-            CleanButton.Depth = 0;
-            CleanButton.HighEmphasis = true;
-            CleanButton.Icon = null;
-            CleanButton.Location = new Point(17, 54);
-            CleanButton.Margin = new Padding(4, 6, 4, 6);
-            CleanButton.MouseState = MaterialSkin.MouseState.HOVER;
-            CleanButton.Name = "CleanButton";
-            CleanButton.NoAccentTextColor = Color.Empty;
-            CleanButton.Size = new Size(64, 36);
-            CleanButton.TabIndex = 1;
-            CleanButton.Text = "Clean";
-            CleanButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
-            CleanButton.UseAccentColor = false;
-            CleanButton.UseVisualStyleBackColor = true;
-            CleanButton.Click += CleanButton_Click;
             // 
             // TrainingPage
             // 
