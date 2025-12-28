@@ -6,72 +6,73 @@ namespace WinForm_RFBN_APP
 {
     public partial class TestingPage : UserControl
     {
-
-        #region Constructor ---------------------------------------------------------
-
         public TestingPage()
         {
             InitializeComponent();
         }
 
-        #endregion
-
-
-        #region Button Commands -----------------------------------------------------
-
         private void TestButton_Click(object sender, EventArgs e)
         {
-            // 1. Load Model
-            using var db = new Source.Data.AppDbContext();
+            RichTextBoxOutput.AppendText("--------------------------------------------------\n");
+
+            // 1. Load Model Entity from DB
+            using var db = new AppDbContext();
             var entity = db.TrainedModels
                             .OrderByDescending(m => m.CreatedAt)
                             .FirstOrDefault(m => m.ModelName == "FoodClassifier_V1");
 
             if (entity == null)
             {
-                RichTextBoxOutput.AppendText("--------------------------------------------------\n");
                 RichTextBoxOutput.AppendText("No model found. Please train first.\r\n");
                 return;
             }
 
-            // Reconstruct Network
+            // 2. Reconstruct Network
             var model = new RbfNetwork(entity.InputCount, entity.HiddenCount, 1);
             model.Bias = entity.Bias;
-            // Note: Ensure CultureInfo.InvariantCulture is used if these were saved with dots
             model.Weights = entity.WeightsData.Split(';').Select(val => double.Parse(val, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
             model.Sigmas = entity.SigmasData.Split(';').Select(val => double.Parse(val, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
-            model.Centroids = DeserializeCentroids(entity.CentroidsData);
+            model.Centroids = ModelRepository.DeserializeCentroids(entity.CentroidsData);
 
-            // 2. Load Test Data 
-            var testData = DataLoader.LoadCsv("test_20k_normalized_data.csv");
-            RichTextBoxOutput.AppendText("Test Data Loaded (NutriScore ignored). Finding Optimal Threshold...\r\n");
+            // 3. Load Normalization Stats from DB
+            var means = NormalizationHelper.DeserializeArray(entity.NormalizationMeans);
+            var stdDevs = NormalizationHelper.DeserializeArray(entity.NormalizationStdDevs);
 
-            RichTextBoxOutput.AppendText("--------------------------------------------------\n");
-            RichTextBoxOutput.AppendText("Test Data Loaded.\r\n");
+            if (means.Length == 0 || stdDevs.Length == 0)
+            {
+                RichTextBoxOutput.AppendText("Error: Model is missing normalization stats. Please retrain.\r\n");
+                return;
+            }
 
+            // 4. Load RAW Test Data
+            var rawTestData = DataLoader.LoadCsv("test_20k_raw_data.csv");
+
+            RichTextBoxOutput.AppendText($"Loaded {rawTestData.Inputs.Count} raw test records.\n");
+
+            // 5. Normalize Test Data (Using SAVED Stats)
+            // IMPORTANT: Do NOT re-compute stats on test data. Use the training stats.
             List<double> rawScores = new List<double>();
-            List<double> actuals = testData.Targets;
+            List<double> actuals = rawTestData.Targets;
 
-            // 3. Background Evaluation
             Task.Run(() =>
             {
-                // A. Generate Scores
-                foreach (var input in testData.Inputs)
+                foreach (var rawInput in rawTestData.Inputs)
                 {
-                    rawScores.Add(model.Forward(input));
+                    // Normalize single row
+                    double[] normInput = NormalizationHelper.NormalizeRow(rawInput, means, stdDevs);
+
+                    // Forward pass
+                    rawScores.Add(model.Forward(normInput));
                 }
 
-                // B. Find Optimal Threshold
+                // 6. Find Optimal Threshold & Metrics
                 double bestThreshold = 0.5;
                 double bestAccuracy = 0.0;
                 EvaluationMetrics bestMetrics = new EvaluationMetrics();
 
-                // Scan from 0.05 to 0.95 to find the sweet spot
                 for (double sweetSpot = 0.05; sweetSpot < 0.95; sweetSpot += 0.05)
                 {
                     EvaluationMetrics metrics = MetricsCalculator.Calculate(rawScores, actuals, sweetSpot);
-
-                    // You can optimize for Accuracy, F-Measure, or Precision depending on your goal
                     if (metrics.Accuracy > bestAccuracy)
                     {
                         bestAccuracy = metrics.Accuracy;
@@ -80,50 +81,14 @@ namespace WinForm_RFBN_APP
                     }
                 }
 
-                // C. Update UI
+                // 7. Update UI
                 this.Invoke((MethodInvoker)delegate
                 {
-                    RichTextBoxOutput.AppendText("--------------------------------------------------\n");
+                    RichTextBoxOutput.AppendText($"Optimal Threshold: {bestThreshold:F2}\n");
                     RichTextBoxOutput.AppendText(bestMetrics.ToString() + "\r\n");
-
-                    // Comparison with default
-                    //var defaultMetrics = MetricsCalculator.Calculate(rawScores, actuals, 0.5);
-                    //RichTextBoxOutput.AppendText("--------------------------------------------------\n");
-                    //RichTextBoxOutput.AppendText($"\n(Default 0.5 Accuracy was: {defaultMetrics.Accuracy:P2})\r\n");
                 });
             });
         }
-
-        #endregion
-
-
-        #region Auxiliary -----------------------------------------------------------
-
-        /// <summary>
-        /// DeserializeCentroids
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        private double[][] DeserializeCentroids(string data)
-        {
-            // Split the main string by '|' to get each centroid (row)
-            var rows = data.Split('|');
-            var result = new double[rows.Length][];
-
-            for (int i = 0; i < rows.Length; i++)
-            {
-                // Split each row by ',' and parse the doubles safely
-                // FIX: Added CultureInfo.InvariantCulture to handle "." decimals correctly
-                result[i] = rows[i]
-                    .Split(',')
-                    .Select(val => double.Parse(val, System.Globalization.CultureInfo.InvariantCulture))
-                    .ToArray();
-            }
-
-            return result;
-        }
-
-        #endregion
-
+       
     }
 }

@@ -28,19 +28,21 @@ namespace WinForm_RFBN_APP
         private void TestCustomButton_Click(object sender, EventArgs e)
         {
             // As input schema "PROTEIN;TOTAL_FAT;CARBS;ENERGY;FIBER;SATURATED_FAT;SUGARS;"
-            string inputRaw = 
-                ProteinTextBox.Text.Trim() + ";" +
-                TotalFatTextBox.Text.Trim() + ";" +
-                CarbohydratesTextBox.Text.Trim() + ";" +
-                KiloCaloriesTextBox.Text.Trim() + ";" +
-                FiberTextBox.Text.Trim() + ";" +
-                SaturatedFatTextBox.Text.Trim() + ";" +
-                SugarTextBox.Text.Trim();
+            // We add a safety check: if a box is empty/whitespace, treat it as "0"
+            string p = string.IsNullOrWhiteSpace(ProteinTextBox.Text) ? "0" : ProteinTextBox.Text.Trim();
+            string tf = string.IsNullOrWhiteSpace(TotalFatTextBox.Text) ? "0" : TotalFatTextBox.Text.Trim();
+            string c = string.IsNullOrWhiteSpace(CarbohydratesTextBox.Text) ? "0" : CarbohydratesTextBox.Text.Trim();
+            string en = string.IsNullOrWhiteSpace(KiloCaloriesTextBox.Text) ? "0" : KiloCaloriesTextBox.Text.Trim();
+            string fib = string.IsNullOrWhiteSpace(FiberTextBox.Text) ? "0" : FiberTextBox.Text.Trim();
+            string sf = string.IsNullOrWhiteSpace(SaturatedFatTextBox.Text) ? "0" : SaturatedFatTextBox.Text.Trim();
+            string s = string.IsNullOrWhiteSpace(SugarTextBox.Text) ? "0" : SugarTextBox.Text.Trim();
+
+            string inputRaw = $"{p};{tf};{c};{en};{fib};{sf};{s}";
 
             TestManualInput(inputRaw);
         }
 
-        private void TestManualInput(string inputRaw)
+        private void TestManualInputNormalized(string inputRaw)
         {
             if (string.IsNullOrEmpty(inputRaw))
             {
@@ -97,6 +99,90 @@ namespace WinForm_RFBN_APP
             string label = predictedClass == 0 ? "UNHEALTHY (0)" : "HEALTHY (1)";
 
             // 4. Update UI
+            RichTextBoxOutput.AppendText("--------------------------------------------------\n");
+            RichTextBoxOutput.AppendText($"Manual Test Input: {inputRaw}\n");
+            RichTextBoxOutput.AppendText($"Raw Network Score: {score:F4}\n");
+            RichTextBoxOutput.AppendText($"Prediction: {label}\n");
+            RichTextBoxOutput.AppendText("--------------------------------------------------\n");
+        }
+
+        private void TestManualInput(string inputRaw)
+        {
+            if (string.IsNullOrEmpty(inputRaw))
+            {
+                MessageBox.Show("Please enter data in the text box first.", "Input Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // 1. Parse Single Input
+            double[] singleInput;
+            try
+            {
+                // Split by semicolon and parse using InvariantCulture to handle dots correctly
+                singleInput = inputRaw.Split(';')
+                                      .Select(val => double.Parse(val.Trim(), System.Globalization.CultureInfo.InvariantCulture))
+                                      .ToArray();
+
+                // Validate Dimension (Should be 7 based on your previous update)
+                if (singleInput.Length != 7)
+                {
+                    MessageBox.Show($"Expected 7 values (Protein, Fat, Carbs, Energy, Fiber, SatFat, Sugars). Got {singleInput.Length}.", "Dimension Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
+            catch (FormatException)
+            {
+                MessageBox.Show("Invalid number format. Please ensure inputs are numbers separated by semicolons (e.g. -0.44;-1.02...)", "Format Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // 2. Load Model & Stats
+            using var db = new Source.Data.AppDbContext();
+            var entity = db.TrainedModels
+                            .OrderByDescending(m => m.CreatedAt)
+                            .FirstOrDefault(m => m.ModelName == "FoodClassifier_V1");
+
+            if (entity == null)
+            {
+                RichTextBoxOutput.AppendText("Error: No trained model found. Please train the model first.\n");
+                return;
+            }
+
+            // --- NEW: Load Normalization Stats ---
+            var means = NormalizationHelper.DeserializeArray(entity.NormalizationMeans);
+            var stdDevs = NormalizationHelper.DeserializeArray(entity.NormalizationStdDevs);
+
+            // Check if stats exist (backward compatibility)
+            double[] normalizedInput;
+            if (means.Length > 0 && stdDevs.Length > 0)
+            {
+                // NORMALIZE the user input (Raw -> Z-Score)
+                normalizedInput = NormalizationHelper.NormalizeRow(singleInput, means, stdDevs);
+
+                RichTextBoxOutput.AppendText($"Normalized Input: {string.Join(";", normalizedInput.Select(n => n.ToString("F2")))}\n");
+            }
+            else
+            {
+                // Fallback if model was trained without saving stats
+                normalizedInput = singleInput;
+                RichTextBoxOutput.AppendText("WARNING: No normalization stats found in DB. Using raw input.\n");
+            }
+
+            // 3. Reconstruct Network
+            var model = new RbfNetwork(entity.InputCount, entity.HiddenCount, 1);
+            model.Bias = entity.Bias;
+            model.Weights = entity.WeightsData.Split(';').Select(val => double.Parse(val, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
+            model.Sigmas = entity.SigmasData.Split(';').Select(val => double.Parse(val, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
+            model.Centroids = DeserializeCentroids(entity.CentroidsData);
+
+            // 4. Execute Prediction using NORMALIZED input
+            double score = model.Forward(normalizedInput);
+
+            // Threshold 0.5 is standard for single-shot
+            int predictedClass = score >= 0.5 ? 1 : 0;
+            string label = predictedClass == 0 ? "Class 0" : "Class 1";
+
+            // 5. Update UI
             RichTextBoxOutput.AppendText("--------------------------------------------------\n");
             RichTextBoxOutput.AppendText($"Manual Test Input: {inputRaw}\n");
             RichTextBoxOutput.AppendText($"Raw Network Score: {score:F4}\n");

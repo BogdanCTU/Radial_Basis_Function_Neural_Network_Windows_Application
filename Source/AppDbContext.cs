@@ -35,6 +35,10 @@ namespace Source.Data
         public double Bias { get; set; }
         public int InputCount { get; set; }
         public int HiddenCount { get; set; }
+
+        // In order to process manual inputs
+        public string NormalizationMeans { get; set; } = string.Empty;
+        public string NormalizationStdDevs { get; set; } = string.Empty;
     }
 
 }
