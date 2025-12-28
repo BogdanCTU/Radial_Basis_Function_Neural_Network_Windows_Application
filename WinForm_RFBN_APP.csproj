@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy &quot;$(ProjectDir)train_80k.csv&quot; &quot;$(TargetDir)train_80k.csv&quot; /Y&#xD;&#xA;copy &quot;$(ProjectDir)test_20k.csv&quot; &quot;$(TargetDir)test_20k.csv&quot; /Y&#xD;&#xA;" />
+    <Exec Command="copy &quot;$(ProjectDir)train_80k.csv&quot; &quot;$(TargetDir)train_80k_normalized_data.csv&quot; /Y&#xD;&#xA;copy &quot;$(ProjectDir)test_20k.csv&quot; &quot;$(TargetDir)test_20k_normalized_data.csv&quot; /Y&#xD;&#xA;copy &quot;$(ProjectDir)train_80k.csv&quot; &quot;$(TargetDir)train_80k.csv&quot; /Y&#xD;&#xA;copy &quot;$(ProjectDir)test_20k.csv&quot; &quot;$(TargetDir)test_20k.csv&quot; /Y&#xD;&#xA;" />
   </Target>
 
 </Project>

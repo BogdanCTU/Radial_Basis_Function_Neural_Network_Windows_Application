@@ -21,7 +21,7 @@ namespace WinForm_RFBN_APP
 
         private async void TrainButton_Click(object sender, EventArgs e)
         {
-            var data = LoadCsv("train_80k.csv");
+            var data = LoadCsv("train_80k_normalized_data.csv");
             RichTextBoxOutput.AppendText("Data Loaded. Starting Training...\n");
 
             // Normalize data (Crucial for RBF/K-Means)

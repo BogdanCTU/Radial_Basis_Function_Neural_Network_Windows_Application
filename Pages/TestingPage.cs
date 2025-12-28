@@ -31,7 +31,7 @@ namespace WinForm_RFBN_APP
             // 2. Load Testing Data (using the same CSV parser helper as before)
             // NOTE: If you implemented Normalization during training, you MUST apply
             // the SAME saved Min/Max values to this test set here.
-            var testData = LoadCsv("test_20k.csv");
+            var testData = LoadCsv("test_20k_normalized_data.csv");
             RichTextBoxOutput.AppendText("Test Data Loaded. Running Evaluation...\r\n");
 
             // 3. Run Batch Prediction
