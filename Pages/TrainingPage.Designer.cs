@@ -31,10 +31,16 @@
         {
             ButtonsPannel = new Panel();
             TrainButton = new MaterialSkin.Controls.MaterialButton();
-            ViewerPannel = new Panel();
             RichTextBoxOutput = new RichTextBox();
+            panel1 = new Panel();
+            EpochsTextBox = new MaterialSkin.Controls.MaterialTextBox();
+            HiddenNeuronsTextBox = new MaterialSkin.Controls.MaterialTextBox();
+            LearningRateTextBox = new MaterialSkin.Controls.MaterialTextBox();
+            materialLabel1 = new MaterialSkin.Controls.MaterialLabel();
+            materialLabel2 = new MaterialSkin.Controls.MaterialLabel();
+            materialLabel3 = new MaterialSkin.Controls.MaterialLabel();
             ButtonsPannel.SuspendLayout();
-            ViewerPannel.SuspendLayout();
+            panel1.SuspendLayout();
             SuspendLayout();
             // 
             // ButtonsPannel
@@ -66,43 +72,143 @@
             TrainButton.UseVisualStyleBackColor = true;
             TrainButton.Click += TrainButton_Click;
             // 
-            // ViewerPannel
-            // 
-            ViewerPannel.Controls.Add(RichTextBoxOutput);
-            ViewerPannel.Dock = DockStyle.Fill;
-            ViewerPannel.Location = new Point(73, 0);
-            ViewerPannel.Name = "ViewerPannel";
-            ViewerPannel.Size = new Size(636, 444);
-            ViewerPannel.TabIndex = 1;
-            // 
             // RichTextBoxOutput
             // 
             RichTextBoxOutput.Dock = DockStyle.Fill;
-            RichTextBoxOutput.Location = new Point(0, 0);
+            RichTextBoxOutput.Location = new Point(73, 0);
             RichTextBoxOutput.Name = "RichTextBoxOutput";
             RichTextBoxOutput.Size = new Size(636, 444);
-            RichTextBoxOutput.TabIndex = 0;
+            RichTextBoxOutput.TabIndex = 1;
             RichTextBoxOutput.Text = "";
+            // 
+            // panel1
+            // 
+            panel1.Controls.Add(materialLabel3);
+            panel1.Controls.Add(materialLabel2);
+            panel1.Controls.Add(materialLabel1);
+            panel1.Controls.Add(LearningRateTextBox);
+            panel1.Controls.Add(HiddenNeuronsTextBox);
+            panel1.Controls.Add(EpochsTextBox);
+            panel1.Dock = DockStyle.Top;
+            panel1.Location = new Point(73, 0);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(636, 59);
+            panel1.TabIndex = 2;
+            // 
+            // EpochsTextBox
+            // 
+            EpochsTextBox.AnimateReadOnly = false;
+            EpochsTextBox.BorderStyle = BorderStyle.None;
+            EpochsTextBox.Depth = 0;
+            EpochsTextBox.Font = new Font("Roboto", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
+            EpochsTextBox.LeadingIcon = null;
+            EpochsTextBox.Location = new Point(73, 4);
+            EpochsTextBox.MaxLength = 50;
+            EpochsTextBox.MouseState = MaterialSkin.MouseState.OUT;
+            EpochsTextBox.Multiline = false;
+            EpochsTextBox.Name = "EpochsTextBox";
+            EpochsTextBox.Size = new Size(87, 50);
+            EpochsTextBox.TabIndex = 0;
+            EpochsTextBox.Text = "100";
+            EpochsTextBox.TrailingIcon = null;
+            // 
+            // HiddenNeuronsTextBox
+            // 
+            HiddenNeuronsTextBox.AnimateReadOnly = false;
+            HiddenNeuronsTextBox.BorderStyle = BorderStyle.None;
+            HiddenNeuronsTextBox.Depth = 0;
+            HiddenNeuronsTextBox.Font = new Font("Microsoft Sans Serif", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
+            HiddenNeuronsTextBox.LeadingIcon = null;
+            HiddenNeuronsTextBox.Location = new Point(301, 3);
+            HiddenNeuronsTextBox.MaxLength = 50;
+            HiddenNeuronsTextBox.MouseState = MaterialSkin.MouseState.OUT;
+            HiddenNeuronsTextBox.Multiline = false;
+            HiddenNeuronsTextBox.Name = "HiddenNeuronsTextBox";
+            HiddenNeuronsTextBox.Size = new Size(109, 50);
+            HiddenNeuronsTextBox.TabIndex = 1;
+            HiddenNeuronsTextBox.Text = "25";
+            HiddenNeuronsTextBox.TrailingIcon = null;
+            // 
+            // LearningRateTextBox
+            // 
+            LearningRateTextBox.AnimateReadOnly = false;
+            LearningRateTextBox.BorderStyle = BorderStyle.None;
+            LearningRateTextBox.Depth = 0;
+            LearningRateTextBox.Font = new Font("Microsoft Sans Serif", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
+            LearningRateTextBox.LeadingIcon = null;
+            LearningRateTextBox.Location = new Point(534, 6);
+            LearningRateTextBox.MaxLength = 50;
+            LearningRateTextBox.MouseState = MaterialSkin.MouseState.OUT;
+            LearningRateTextBox.Multiline = false;
+            LearningRateTextBox.Name = "LearningRateTextBox";
+            LearningRateTextBox.Size = new Size(99, 50);
+            LearningRateTextBox.TabIndex = 2;
+            LearningRateTextBox.Text = "0.01";
+            LearningRateTextBox.TrailingIcon = null;
+            // 
+            // materialLabel1
+            // 
+            materialLabel1.AutoSize = true;
+            materialLabel1.Depth = 0;
+            materialLabel1.Font = new Font("Roboto", 14F, FontStyle.Regular, GraphicsUnit.Pixel);
+            materialLabel1.Location = new Point(6, 23);
+            materialLabel1.MouseState = MaterialSkin.MouseState.HOVER;
+            materialLabel1.Name = "materialLabel1";
+            materialLabel1.Size = new Size(57, 19);
+            materialLabel1.TabIndex = 3;
+            materialLabel1.Text = "Epochs:";
+            // 
+            // materialLabel2
+            // 
+            materialLabel2.AutoSize = true;
+            materialLabel2.Depth = 0;
+            materialLabel2.Font = new Font("Roboto", 14F, FontStyle.Regular, GraphicsUnit.Pixel);
+            materialLabel2.Location = new Point(177, 23);
+            materialLabel2.MouseState = MaterialSkin.MouseState.HOVER;
+            materialLabel2.Name = "materialLabel2";
+            materialLabel2.Size = new Size(118, 19);
+            materialLabel2.TabIndex = 4;
+            materialLabel2.Text = "Hidden Neurons:";
+            // 
+            // materialLabel3
+            // 
+            materialLabel3.AutoSize = true;
+            materialLabel3.Depth = 0;
+            materialLabel3.Font = new Font("Roboto", 14F, FontStyle.Regular, GraphicsUnit.Pixel);
+            materialLabel3.Location = new Point(425, 23);
+            materialLabel3.MouseState = MaterialSkin.MouseState.HOVER;
+            materialLabel3.Name = "materialLabel3";
+            materialLabel3.Size = new Size(103, 19);
+            materialLabel3.TabIndex = 5;
+            materialLabel3.Text = "Learning Rate:";
             // 
             // TrainingPage
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(ViewerPannel);
+            Controls.Add(panel1);
+            Controls.Add(RichTextBoxOutput);
             Controls.Add(ButtonsPannel);
             Name = "TrainingPage";
             Size = new Size(709, 444);
             ButtonsPannel.ResumeLayout(false);
             ButtonsPannel.PerformLayout();
-            ViewerPannel.ResumeLayout(false);
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             ResumeLayout(false);
         }
 
         #endregion
 
         private Panel ButtonsPannel;
-        private Panel ViewerPannel;
         private MaterialSkin.Controls.MaterialButton TrainButton;
         private RichTextBox RichTextBoxOutput;
+        private Panel panel1;
+        private MaterialSkin.Controls.MaterialTextBox EpochsTextBox;
+        private MaterialSkin.Controls.MaterialLabel materialLabel1;
+        private MaterialSkin.Controls.MaterialTextBox LearningRateTextBox;
+        private MaterialSkin.Controls.MaterialTextBox HiddenNeuronsTextBox;
+        private MaterialSkin.Controls.MaterialLabel materialLabel2;
+        private MaterialSkin.Controls.MaterialLabel materialLabel3;
     }
 }

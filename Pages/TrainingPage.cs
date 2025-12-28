@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WinForm_RFBN_APP
 {
@@ -29,13 +30,27 @@ namespace WinForm_RFBN_APP
             // NOTE: In production, save Min/Max stats to DB to normalize new inputs similarly
             // For brevity, skipping explicit normalization code here, but HIGHLY recommended.
 
+            // Input data from TextBoxes
+            bool successRead true;
+            int hiddenNeurons, epochs, learningRate;
+            successRead |= int.TryParse(HiddenNeuronsTextBox.Text.ToString(), out hiddenNeurons);
+            successRead |= int.TryParse(EpochsTextBox.Text.ToString(), out epochs);
+            successRead |= int.TryParse(LearningRateTextBox.Text.ToString(), out learningRate);
+
+            // 25 Hidden Neurons, 100 Epochs, 0.01 Learning Rate
+            if (!successRead)
+            {
+                hiddenNeurons = 25;
+                epochs        = 100;
+                learningRate  = 0.01;
+            }
+
             var trainer = new RbfTrainer();
 
             // Run on background thread to keep UI responsive
             RbfNetwork model = await Task.Run(() =>
             {
-                // 25 Hidden Neurons, 100 Epochs, 0.01 Learning Rate
-                return trainer.Train(data.Inputs, data.Targets, 25, 100, 0.01);
+                return trainer.Train(data.Inputs, data.Targets, hiddenNeurons, epochs, learningRate);
             });
             RichTextBoxOutput.AppendText("Training Complete!\n");
 
