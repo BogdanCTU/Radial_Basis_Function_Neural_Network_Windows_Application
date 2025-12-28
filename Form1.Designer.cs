@@ -109,7 +109,9 @@
 
         #endregion
 
-        #region Items ---------------------------------------------------------------
+        #region Fields --------------------------------------------------------------
+
+        private UserControl currentPage;
 
         // PANNELS
         private Panel NavigationPanel;
@@ -122,47 +124,47 @@
         #endregion
 
 
-        #region Data Access ---------------------------------------------------------
+        #region Buttons -------------------------------------------------------------
 
-        /// <summary>
-        /// LoadCsv
-        /// </summary>
-        /// <param name="filePath"></param>
-        /// <returns></returns>
-        public (List<double[]> Inputs, List<double> Targets) LoadCsv(string filePath)
+        private void TrainingPageButton_Click(object sender, EventArgs e)
         {
-            var lines = File.ReadAllLines(filePath).Skip(1); // Skip header
-            var inputs = new List<double[]>();
-            var targets = new List<double>();
+            LoadPageWithButtonControl(new TrainingPage(), TrainingPageButton);
+        }
 
-            foreach (var line in lines)
-            {
-                var parts = line.Split(';');
-                // Indexes 0-7 are inputs (8 features), Index 8 is Class
-                double[] rowInput = new double[8];
-                for (int i = 0; i < 8; i++)
-                {
-                    rowInput[i] = double.Parse(parts[i]);
-                }
-
-                inputs.Add(rowInput);
-                targets.Add(double.Parse(parts[8]));
-            }
-
-            return (inputs, targets);
+        private void TestingPageButton_Click(object sender, EventArgs e)
+        {
+            LoadPageWithButtonControl(new TestingPage(), TestingPageButton);
         }
 
         #endregion
 
-        #region Buttons -------------------------------------------------------------
+
+        #region Logics --------------------------------------------------------------
 
         private void LoadPage(UserControl page)
         {
             ControlPanel.Controls.Clear();
             page.Dock = DockStyle.Fill;
             ControlPanel.Controls.Add(page);
+            currentPage = page;
         }
 
+        private void LoadPageWithButtonControl(UserControl page, MaterialSkin.Controls.MaterialButton clickedButton)
+        {
+            // If the same page is already loaded, do nothing
+            if (currentPage != null && currentPage.GetType() == page.GetType())
+                return;
+
+            // Enable all buttons first
+            TrainingPageButton.Enabled = true;
+            TestingPageButton.Enabled = true;
+
+            // Disable the clicked button
+            clickedButton.Enabled = false;
+
+            // Load the page
+            LoadPage(page);
+        }
 
         #endregion
 
