@@ -1,2 +1,123 @@
-# Radial_Basis_Function_Neural_Network_Windows_Application
-Machine Learning RFBN Radial Basis Function Neural Network Windows Form Application
+---
+
+# RBFN Food Quality Classifier (C# WinForms)
+
+A robust **Radial Basis Function Network (RBFN)** built entirely **from scratch** in C# to classify food items as "Healthy" or "Unhealthy" based on nutritional content. This project demonstrates a hybrid training pipeline (K-Means + Gradient Descent) without relying on external ML libraries like TensorFlow or ML.NET for the core algorithm.
+
+<img width="1240" height="570" alt="image" src="https://github.com/user-attachments/assets/95fd469c-fb52-44db-a8d7-18a2ffa66cf5" />
+
+---
+
+## 🚀 Key Features
+
+* **From-Scratch Implementation:** The entire Neural Network logic (Forward Pass, Backpropagation, Activation Functions) is hand-coded in C#.
+* **Hybrid Training Algorithm:**
+    * **Unsupervised Phase:** K-Means Clustering determines hidden neuron centroids.
+    * **Heuristic Phase:** Sigma ($\sigma$) values calculated via average centroid distance.
+    * **Supervised Phase:** Gradient Descent optimizes output weights using a Sigmoid activation.
+* **Dynamic Data Loading:** Capable of parsing CSVs with customizable schemas (column selection) at runtime.
+* **Persistent Models:** Trains models and saves weights, stats, and schemas to a local SQLite database (`food_classifier.db`).
+* **Data Normalization:** Built-in Z-Score normalization pipeline ensures statistical stability.
+
+---
+
+## 🧠 Model Architecture: RBF Neural Network
+
+The model is a 3-layer feed-forward network tailored for binary classification.
+
+### 1. Input Layer
+Accepts a vector of nutritional features. The dimension is dynamic based on user selection (e.g., Protein, Fat, Sugar, etc.).
+* **Preprocessing:** All inputs are Z-Score normalized before entering the network:
+    $$x_{norm} = \frac{x - \mu}{\sigma}$$
+
+### 2. Hidden Layer (RBF Kernels)
+Instead of standard dot-product neurons, this layer uses **Gaussian Radial Basis Functions**. Each neuron acts as a prototype for a specific cluster of data.
+* **Activation Function:** Gaussian
+    $$\phi(x) = e^{-\frac{||x - c||^2}{2\sigma^2}}$$
+    * $x$: Input vector
+    * $c$: Centroid (learned via K-Means)
+    * $\sigma$: Spread/Width of the Gaussian
+
+### 3. Output Layer (Logistic Regression)
+A single neuron aggregates the RBF activations to produce a probability score (0 to 1).
+* **Aggregation:** Linear weighted sum of hidden outputs + bias.
+* **Activation Function:** Sigmoid
+    $$y = \frac{1}{1 + e^{-\sum (w_i \cdot \phi_i) + b}}$$
+
+---
+
+## 📂 Code Structure & Implementation
+
+The core logic is isolated in the `Source` folder, separating the math from the WinForms UI.
+
+### 🔹 Core ML Engine
+* **`RbfNetwork.cs`**: The data structure holding Centroids, Sigmas, and Weights. Contains the `Forward()` method for prediction.
+* **`RbfTrainer.cs`**: Orchestrates the training pipeline:
+    1.  Runs **K-Means** to find centroids ($c$).
+    2.  Computes standard deviation for $\sigma$.
+    3.  Runs **Gradient Descent** to minimize Squared Error on the output weights.
+* **`FoodClassifier.cs`**: A high-level wrapper that combines the `RbfNetwork` with `NormalizationStats`. This ensures that any raw input provided by the user is automatically normalized using the *exact* stats from the training set before prediction.
+
+### 🔹 Data Management
+* **`DataLoader.cs`**: Dynamically parses CSV files based on a user-defined schema string (e.g., `"PROTEIN;FAT;CLASS"`).
+* **`NormalizationHelper.cs`**: math utility for computing Means and Standard Deviations (Z-Scores) and serializing them for storage.
+* **`ModelRepository.cs`**: Handles SQLite operations using Entity Framework Core to save/load trained models.
+
+---
+
+## 📊 Performance Results
+
+The model was tested on a held-out dataset of **20,000 records** (separate from the 80k training set). The from-scratch implementation achieved near-perfect classification for this specific domain.
+
+| Metric | Score |
+| :--- | :--- |
+| **Accuracy** | **98.29%** |
+| **Precision** | **97.49%** |
+| **Recall (Sensitivity)** | **94.79%** |
+| **F-Measure** | **96.12%** |
+| **AUC-ROC** | **0.9985** |
+| **AUPRC** | **0.9949** |
+
+**Confusion Matrix:**
+```text
+[ TP: 4225 | FP: 109 ]
+[ FN: 232  | TN: 15434]
+
+```
+
+---
+
+## 🛠️ Installation & Usage
+
+### Prerequisites
+* Visual Studio 2022 (or later)
+* .NET 9.0 SDK
+* **NuGet Packages:**
+    * `MaterialSkin.2` (UI Design)
+    * `Microsoft.EntityFrameworkCore.Sqlite`
+
+### Getting Started
+1. **Clone the Repository**
+```bash
+git clone https://github.com/BogdanCTU/Radial_Basis_Function_Neural_Network_Windows_Application.git
+```
+2. **Build the Solution**
+Open `WinForm_RFBN_APP.sln` in Visual Studio and build the project to restore NuGet packages.
+3. **Run**
+Start the application. The SQLite database `food_classifier.db` will be created automatically.
+
+### How to Train
+1. Navigate to the **Training Page**.
+2. Enter your desired schema (e.g., `PROTEIN;TOTAL_FAT;CARBS;ENERGY;FIBER;SATURATED_FAT;SUGARS;CLASSIFICATION`).
+3. Set Hyperparameters (e.g., 25 Hidden Neurons, 100 Epochs, LR 0.01).
+4. Click **Train**.
+
+---
+
+## 📄 License
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+
+## 👨‍💻 Author
+**Todoran C. Bogdan**
