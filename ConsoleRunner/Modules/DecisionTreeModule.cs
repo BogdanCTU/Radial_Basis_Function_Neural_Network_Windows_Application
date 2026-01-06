@@ -36,33 +36,16 @@ namespace ConsoleRunner.Modules
             var dt = new DecisionTreeRegressor(minSamplesSplit: 10, maxDepth: 10);
             dt.Fit(trainInputs, trainTargets);
             Console.WriteLine(" > Training Complete!");
-
+            
             // 3. Evaluation
             Console.WriteLine("\n[4/4] Evaluating on Validation Set... ");
             
             double[] predictions = dt.Predict(valInputs);
             
-            double mse = 0;
-            double sst = 0; // Total Sum of Squares
-            double meanVal = valTargets.Average();
-
-            for(int i=0; i<predictions.Length; i++)
-            {
-                double err = predictions[i] - valTargets[i];
-                mse += err * err;
-                
-                double dev = valTargets[i] - meanVal;
-                sst += dev * dev;
-            }
-            mse /= predictions.Length;
-            double rmse = Math.Sqrt(mse);
-
-            double r2 = 1.0 - (mse * predictions.Length) / sst;
+            var metrics = Source.RegressionMetricsCalculator.Calculate(predictions.ToList(), valTargets.ToList());
 
             Console.WriteLine("--------------------------------------------------");
-            Console.WriteLine($" MSE:      {mse:F4}");
-            Console.WriteLine($" RMSE:     {rmse:F4}");
-            Console.WriteLine($" R2 Score: {r2:F4}");
+            Console.WriteLine(metrics.ToString());
             Console.WriteLine("--------------------------------------------------");
             
             // Show a few examples
