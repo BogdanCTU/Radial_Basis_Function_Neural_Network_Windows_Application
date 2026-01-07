@@ -16,9 +16,12 @@ namespace WinForm_RFBN_APP
         private Panel ControlPanel;
 
         // BUTTONS
+        // BUTTONS
         private MaterialSkin.Controls.MaterialButton TrainingPageButton;
         private MaterialSkin.Controls.MaterialButton TestingPageButton;
         private MaterialSkin.Controls.MaterialButton ManualTestingPageButton;
+        private MaterialSkin.Controls.MaterialButton CrossValidationPageButton;
+        private MaterialSkin.Controls.MaterialButton ShapPageButton;
 
         #endregion
 
@@ -54,18 +57,22 @@ namespace WinForm_RFBN_APP
             TrainingPageButton = new MaterialSkin.Controls.MaterialButton();
             TestingPageButton = new MaterialSkin.Controls.MaterialButton();
             ControlPanel = new Panel();
+            CrossValidationPageButton = new MaterialSkin.Controls.MaterialButton();
+            ShapPageButton = new MaterialSkin.Controls.MaterialButton();
             NavigationPanel.SuspendLayout();
             SuspendLayout();
             // 
             // NavigationPanel
             // 
+            NavigationPanel.Controls.Add(ShapPageButton);
+            NavigationPanel.Controls.Add(CrossValidationPageButton);
             NavigationPanel.Controls.Add(ManualTestingPageButton);
             NavigationPanel.Controls.Add(TrainingPageButton);
             NavigationPanel.Controls.Add(TestingPageButton);
             NavigationPanel.Dock = DockStyle.Top;
             NavigationPanel.Location = new Point(0, 0);
             NavigationPanel.Name = "NavigationPanel";
-            NavigationPanel.Size = new Size(784, 37);
+            NavigationPanel.Size = new Size(950, 48);
             NavigationPanel.TabIndex = 0;
             // 
             // ManualTestingPageButton
@@ -76,7 +83,7 @@ namespace WinForm_RFBN_APP
             ManualTestingPageButton.Depth = 0;
             ManualTestingPageButton.HighEmphasis = true;
             ManualTestingPageButton.Icon = null;
-            ManualTestingPageButton.Location = new Point(268, 0);
+            ManualTestingPageButton.Location = new Point(268, 6);
             ManualTestingPageButton.Margin = new Padding(4, 6, 4, 6);
             ManualTestingPageButton.MouseState = MaterialSkin.MouseState.HOVER;
             ManualTestingPageButton.Name = "ManualTestingPageButton";
@@ -96,7 +103,7 @@ namespace WinForm_RFBN_APP
             TrainingPageButton.Depth = 0;
             TrainingPageButton.HighEmphasis = true;
             TrainingPageButton.Icon = null;
-            TrainingPageButton.Location = new Point(0, 0);
+            TrainingPageButton.Location = new Point(0, 6);
             TrainingPageButton.Margin = new Padding(4, 6, 4, 6);
             TrainingPageButton.MouseState = MaterialSkin.MouseState.HOVER;
             TrainingPageButton.Name = "TrainingPageButton";
@@ -117,7 +124,7 @@ namespace WinForm_RFBN_APP
             TestingPageButton.Depth = 0;
             TestingPageButton.HighEmphasis = true;
             TestingPageButton.Icon = null;
-            TestingPageButton.Location = new Point(138, 0);
+            TestingPageButton.Location = new Point(138, 6);
             TestingPageButton.Margin = new Padding(4, 6, 4, 6);
             TestingPageButton.MouseState = MaterialSkin.MouseState.HOVER;
             TestingPageButton.Name = "TestingPageButton";
@@ -129,13 +136,53 @@ namespace WinForm_RFBN_APP
             TestingPageButton.UseAccentColor = false;
             TestingPageButton.UseVisualStyleBackColor = true;
             TestingPageButton.Click += TestingPageButton_Click;
+            //
+            // CrossValidationPageButton
+            //
+            CrossValidationPageButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            CrossValidationPageButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            CrossValidationPageButton.Depth = 0;
+            CrossValidationPageButton.HighEmphasis = true;
+            CrossValidationPageButton.Icon = null;
+            CrossValidationPageButton.Location = new Point(421, 6);
+            CrossValidationPageButton.Margin = new Padding(4, 6, 4, 6);
+            CrossValidationPageButton.MouseState = MaterialSkin.MouseState.HOVER;
+            CrossValidationPageButton.Name = "CrossValidationPageButton";
+            CrossValidationPageButton.NoAccentTextColor = Color.Empty;
+            CrossValidationPageButton.Size = new Size(160, 36);
+            CrossValidationPageButton.TabIndex = 4;
+            CrossValidationPageButton.Text = "Cross Validation";
+            CrossValidationPageButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            CrossValidationPageButton.UseAccentColor = false;
+            CrossValidationPageButton.UseVisualStyleBackColor = true;
+            CrossValidationPageButton.Click += CrossValidationPageButton_Click;
+            //
+            // ShapPageButton
+            //
+            ShapPageButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            ShapPageButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            ShapPageButton.Depth = 0;
+            ShapPageButton.HighEmphasis = true;
+            ShapPageButton.Icon = null;
+            ShapPageButton.Location = new Point(590, 6);
+            ShapPageButton.Margin = new Padding(4, 6, 4, 6);
+            ShapPageButton.MouseState = MaterialSkin.MouseState.HOVER;
+            ShapPageButton.Name = "ShapPageButton";
+            ShapPageButton.NoAccentTextColor = Color.Empty;
+            ShapPageButton.Size = new Size(140, 36);
+            ShapPageButton.TabIndex = 5;
+            ShapPageButton.Text = "SHAP Explainer";
+            ShapPageButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            ShapPageButton.UseAccentColor = false;
+            ShapPageButton.UseVisualStyleBackColor = true;
+            ShapPageButton.Click += ShapPageButton_Click;
             // 
             // ControlPanel
             // 
             ControlPanel.Dock = DockStyle.Fill;
-            ControlPanel.Location = new Point(0, 37);
+            ControlPanel.Location = new Point(0, 48);
             ControlPanel.Name = "ControlPanel";
-            ControlPanel.Size = new Size(784, 524);
+            ControlPanel.Size = new Size(950, 560);
             ControlPanel.TabIndex = 1;
             // 
             // MainScreen
@@ -187,8 +234,24 @@ namespace WinForm_RFBN_APP
         /// <param name="e">The event data.</param>
         private void ManualTestingPageButton_Click(object sender, EventArgs e)
         {
-            // Corrected: Now passes ManualTestingPageButton instead of TestingPageButton
+        // Corrected: Now passes ManualTestingPageButton instead of TestingPageButton
             LoadPageWithButtonControl(new ManualTestingPage(), ManualTestingPageButton);
+        }
+
+        /// <summary>
+        /// Handles the click event for the Cross Validation Page button.
+        /// </summary>
+        private void CrossValidationPageButton_Click(object sender, EventArgs e)
+        {
+            LoadPageWithButtonControl(new CrossValidationPage(), CrossValidationPageButton);
+        }
+
+        /// <summary>
+        /// Handles the click event for the SHAP Page button.
+        /// </summary>
+        private void ShapPageButton_Click(object sender, EventArgs e)
+        {
+            LoadPageWithButtonControl(new ShapPage(), ShapPageButton);
         }
 
         #endregion
