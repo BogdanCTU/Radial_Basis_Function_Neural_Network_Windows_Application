@@ -16,12 +16,12 @@ namespace WinForm_RFBN_APP
         private Panel ControlPanel;
 
         // BUTTONS
-        // BUTTONS
         private MaterialSkin.Controls.MaterialButton TrainingPageButton;
         private MaterialSkin.Controls.MaterialButton TestingPageButton;
         private MaterialSkin.Controls.MaterialButton ManualTestingPageButton;
         private MaterialSkin.Controls.MaterialButton CrossValidationPageButton;
         private MaterialSkin.Controls.MaterialButton ShapPageButton;
+        private MaterialSkin.Controls.MaterialButton GlobalShapPageButton;
 
         #endregion
 
@@ -58,17 +58,21 @@ namespace WinForm_RFBN_APP
             ManualTestingPageButton = new MaterialSkin.Controls.MaterialButton();
             TrainingPageButton = new MaterialSkin.Controls.MaterialButton();
             TestingPageButton = new MaterialSkin.Controls.MaterialButton();
+            // Assuming GlobalShapPageButton is declared elsewhere or will be added to fields.
+            // Adding it here as per instruction for initialization.
+            GlobalShapPageButton = new MaterialSkin.Controls.MaterialButton();
             ControlPanel = new Panel();
             NavigationPanel.SuspendLayout();
             SuspendLayout();
             // 
             // NavigationPanel
             // 
-            NavigationPanel.Controls.Add(ShapPageButton);
-            NavigationPanel.Controls.Add(CrossValidationPageButton);
-            NavigationPanel.Controls.Add(ManualTestingPageButton);
-            NavigationPanel.Controls.Add(TrainingPageButton);
             NavigationPanel.Controls.Add(TestingPageButton);
+            NavigationPanel.Controls.Add(TrainingPageButton);
+            NavigationPanel.Controls.Add(ManualTestingPageButton);
+            NavigationPanel.Controls.Add(CrossValidationPageButton);
+            NavigationPanel.Controls.Add(ShapPageButton);
+            NavigationPanel.Controls.Add(GlobalShapPageButton);
             NavigationPanel.Dock = DockStyle.Top;
             NavigationPanel.Location = new Point(0, 0);
             NavigationPanel.Name = "NavigationPanel";
@@ -177,6 +181,27 @@ namespace WinForm_RFBN_APP
             TestingPageButton.UseVisualStyleBackColor = true;
             TestingPageButton.Click += TestingPageButton_Click;
             // 
+            // GlobalShapPageButton
+            // 
+            GlobalShapPageButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            GlobalShapPageButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            GlobalShapPageButton.Depth = 0;
+            GlobalShapPageButton.HighEmphasis = true;
+            GlobalShapPageButton.Icon = null;
+            GlobalShapPageButton.Location = new Point(740, 6);
+            GlobalShapPageButton.Margin = new Padding(4, 6, 4, 6);
+            GlobalShapPageButton.MouseState = MaterialSkin.MouseState.HOVER;
+            GlobalShapPageButton.Name = "GlobalShapPageButton";
+            GlobalShapPageButton.NoAccentTextColor = Color.Empty;
+            GlobalShapPageButton.Size = new Size(130, 36);
+            GlobalShapPageButton.TabIndex = 6;
+            GlobalShapPageButton.Text = "Global SHAP";
+            GlobalShapPageButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            GlobalShapPageButton.UseAccentColor = false;
+            GlobalShapPageButton.UseVisualStyleBackColor = true;
+            GlobalShapPageButton.Click += GlobalShapPageButton_Click;
+
+            // 
             // ControlPanel
             // 
             ControlPanel.Dock = DockStyle.Fill;
@@ -193,7 +218,7 @@ namespace WinForm_RFBN_APP
             Controls.Add(ControlPanel);
             Controls.Add(NavigationPanel);
             Name = "MainScreen";
-            Text = "Form1";
+            Text = "Material Form";
             NavigationPanel.ResumeLayout(false);
             NavigationPanel.PerformLayout();
             ResumeLayout(false);
@@ -252,6 +277,14 @@ namespace WinForm_RFBN_APP
         private void ShapPageButton_Click(object sender, EventArgs e)
         {
             LoadPageWithButtonControl(new ShapPage(), ShapPageButton);
+        }
+
+        /// <summary>
+        /// Handles the click event for the SHAP Page button.
+        /// </summary>
+        private void GlobalShapPageButton_Click(object sender, EventArgs e)
+        {
+            LoadPageWithButtonControl(new GlobalShapPage(), GlobalShapPageButton);
         }
 
         #endregion
