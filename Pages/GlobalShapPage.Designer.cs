@@ -1,4 +1,3 @@
-
 using System.Drawing;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -8,8 +7,15 @@ namespace WinForm_RFBN_APP
 {
     partial class GlobalShapPage
     {
+        /// <summary> 
+        /// Required designer variable.
+        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
+        /// <summary> 
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -19,8 +25,19 @@ namespace WinForm_RFBN_APP
             base.Dispose(disposing);
         }
 
+        #region Component Designer generated code
+
+        /// <summary> 
+        /// Required method for Designer support - do not modify 
+        /// the contents of this method with the code editor.
+        /// </summary>
         private void InitializeComponent()
         {
+            // Chart specific initializers
+            ChartArea chartArea1 = new ChartArea();
+            Legend legend1 = new Legend();
+            Series series1 = new Series();
+
             MainLayout = new TableLayoutPanel();
             ConfigGroupBox = new GroupBox();
             ConfigLayout = new TableLayoutPanel();
@@ -30,12 +47,19 @@ namespace WinForm_RFBN_APP
             ActionsLayout = new FlowLayoutPanel();
             ExplainBatchButton = new MaterialButton();
             OutputGroupBox = new GroupBox();
+
+            // 1. Instantiate the Chart
+            ShapChart = new Chart();
+
             MainLayout.SuspendLayout();
             ConfigGroupBox.SuspendLayout();
             ConfigLayout.SuspendLayout();
             ActionsGroupBox.SuspendLayout();
             ActionsLayout.SuspendLayout();
+            OutputGroupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(ShapChart)).BeginInit();
             SuspendLayout();
+
             // 
             // MainLayout
             // 
@@ -53,6 +77,7 @@ namespace WinForm_RFBN_APP
             MainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             MainLayout.Size = new Size(800, 600);
             MainLayout.TabIndex = 0;
+
             // 
             // ConfigGroupBox
             // 
@@ -65,6 +90,7 @@ namespace WinForm_RFBN_APP
             ConfigGroupBox.TabIndex = 0;
             ConfigGroupBox.TabStop = false;
             ConfigGroupBox.Text = "Batch Data Configuration";
+
             // 
             // ConfigLayout
             // 
@@ -81,6 +107,7 @@ namespace WinForm_RFBN_APP
             ConfigLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             ConfigLayout.Size = new Size(788, 130);
             ConfigLayout.TabIndex = 0;
+
             // 
             // CsvPathTextBox
             // 
@@ -100,6 +127,7 @@ namespace WinForm_RFBN_APP
             CsvPathTextBox.TabIndex = 0;
             CsvPathTextBox.Text = "train_80k.csv";
             CsvPathTextBox.TrailingIcon = null;
+
             // 
             // SchemaTextBox
             // 
@@ -119,6 +147,7 @@ namespace WinForm_RFBN_APP
             SchemaTextBox.TabIndex = 1;
             SchemaTextBox.Text = "PROTEIN;TOTAL_FAT;CARBS;ENERGY;FIBER;SATURATED_FAT;SUGARS;CLASSIFICATION";
             SchemaTextBox.TrailingIcon = null;
+
             // 
             // ActionsGroupBox
             // 
@@ -131,6 +160,7 @@ namespace WinForm_RFBN_APP
             ActionsGroupBox.TabIndex = 1;
             ActionsGroupBox.TabStop = false;
             ActionsGroupBox.Text = "Actions";
+
             // 
             // ActionsLayout
             // 
@@ -140,6 +170,7 @@ namespace WinForm_RFBN_APP
             ActionsLayout.Name = "ActionsLayout";
             ActionsLayout.Size = new Size(788, 40);
             ActionsLayout.TabIndex = 0;
+
             // 
             // ExplainBatchButton
             // 
@@ -159,9 +190,12 @@ namespace WinForm_RFBN_APP
             ExplainBatchButton.Type = MaterialButton.MaterialButtonType.Contained;
             ExplainBatchButton.UseAccentColor = false;
             ExplainBatchButton.Click += ExplainBatchButton_Click;
+
             // 
             // OutputGroupBox
             // 
+            // 2. Add the Chart to the GroupBox
+            OutputGroupBox.Controls.Add(ShapChart);
             OutputGroupBox.Dock = DockStyle.Fill;
             OutputGroupBox.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             OutputGroupBox.Location = new Point(3, 233);
@@ -170,6 +204,28 @@ namespace WinForm_RFBN_APP
             OutputGroupBox.TabIndex = 2;
             OutputGroupBox.TabStop = false;
             OutputGroupBox.Text = "Global Feature Importance (Mean |SHAP|)";
+
+            // 
+            // ShapChart
+            // 
+            chartArea1.Name = "ChartArea1";
+            ShapChart.ChartAreas.Add(chartArea1);
+            ShapChart.Dock = DockStyle.Fill;
+            legend1.Name = "Legend1";
+            ShapChart.Legends.Add(legend1);
+            ShapChart.Location = new Point(3, 21);
+            ShapChart.Name = "ShapChart";
+
+            // 3. Configure Series Name exactly as used in logic ("ShapValues")
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "ShapValues";
+            ShapChart.Series.Add(series1);
+
+            ShapChart.Size = new Size(788, 340);
+            ShapChart.TabIndex = 0;
+            ShapChart.Text = "Global Importance Chart";
+
             // 
             // GlobalShapPage
             // 
@@ -184,8 +240,12 @@ namespace WinForm_RFBN_APP
             ActionsGroupBox.ResumeLayout(false);
             ActionsLayout.ResumeLayout(false);
             ActionsLayout.PerformLayout();
+            OutputGroupBox.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(ShapChart)).EndInit();
             ResumeLayout(false);
         }
+
+        #endregion
 
         private TableLayoutPanel MainLayout;
         private GroupBox ConfigGroupBox;
@@ -197,6 +257,6 @@ namespace WinForm_RFBN_APP
         private MaterialTextBox CsvPathTextBox;
         private MaterialTextBox SchemaTextBox;
         private MaterialButton ExplainBatchButton;
-        private System.Windows.Forms.DataVisualization.Charting.Chart ShapChart;
+        private Chart ShapChart; // Declared but was missing initialization
     }
 }
