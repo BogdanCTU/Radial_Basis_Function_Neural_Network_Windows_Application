@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Accord.Math" Version="3.8.0" />
+    <PackageReference Include="Accord.Neuro" Version="3.8.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Link existing Source files as if they were in this project -->
+    <Compile Include="..\Source\**\*.cs" LinkBase="Source" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Copy the dataset files to the output directory so the app can find them -->
+    <None Include="..\DataSet\**\*.*">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <LinkBase>DataSet</LinkBase>
+    </None>
+  </ItemGroup>
+
+</Project>

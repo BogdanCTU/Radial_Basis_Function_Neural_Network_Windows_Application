@@ -25,6 +25,12 @@
       <SubType>UserControl</SubType>
     </Compile>
   </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Remove="ConsoleRunner\**" />
+	<EmbeddedResource Remove="ConsoleRunner\**" />
+    <None Remove="ConsoleRunner\**" />
+  </ItemGroup>
 
 	<ItemGroup>
 		<None Update="DataSet\train_80k.csv">
