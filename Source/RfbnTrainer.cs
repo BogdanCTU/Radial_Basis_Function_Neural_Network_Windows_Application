@@ -272,7 +272,7 @@
                     if (calculatedSigma > 3.0) calculatedSigma = 3.0;
 
                     // Prevent overfitting (too sharp)
-                    if (calculatedSigma < 0.1) calculatedSigma = 0.1;
+                    if (calculatedSigma < -3.0) calculatedSigma = -3.0;
 
                     sigmas[i] = calculatedSigma;
                 }

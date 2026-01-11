@@ -45,9 +45,9 @@ namespace WinForm_RFBN_APP
             SchemaTextBox = new MaterialTextBox();
             ActionsGroupBox = new GroupBox();
             ActionsLayout = new FlowLayoutPanel();
-            ExplainBatchButton = new MaterialButton();
+            ExplainMeanSHAPButton = new MaterialButton();
+            ExplainSHAPButton = new MaterialButton();
             OutputGroupBox = new GroupBox();
-
             // 1. Instantiate the Chart
             ShapChart = new Chart();
 
@@ -158,31 +158,51 @@ namespace WinForm_RFBN_APP
             // 
             // ActionsLayout
             // 
-            ActionsLayout.Controls.Add(ExplainBatchButton);
+            ActionsLayout.Controls.Add(ExplainMeanSHAPButton);
+            ActionsLayout.Controls.Add(ExplainSHAPButton);
             ActionsLayout.Dock = DockStyle.Fill;
             ActionsLayout.Location = new Point(3, 21);
             ActionsLayout.Name = "ActionsLayout";
             ActionsLayout.Size = new Size(788, 40);
             ActionsLayout.TabIndex = 0;
             // 
-            // ExplainBatchButton
+            // ExplainMeanSHAPButton
             // 
-            ExplainBatchButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            ExplainBatchButton.Density = MaterialButton.MaterialButtonDensity.Default;
-            ExplainBatchButton.Depth = 0;
-            ExplainBatchButton.HighEmphasis = true;
-            ExplainBatchButton.Icon = null;
-            ExplainBatchButton.Location = new Point(4, 6);
-            ExplainBatchButton.Margin = new Padding(4, 6, 4, 6);
-            ExplainBatchButton.MouseState = MaterialSkin.MouseState.HOVER;
-            ExplainBatchButton.Name = "ExplainBatchButton";
-            ExplainBatchButton.NoAccentTextColor = Color.Empty;
-            ExplainBatchButton.Size = new Size(137, 36);
-            ExplainBatchButton.TabIndex = 0;
-            ExplainBatchButton.Text = "Analyze Batch";
-            ExplainBatchButton.Type = MaterialButton.MaterialButtonType.Contained;
-            ExplainBatchButton.UseAccentColor = false;
-            ExplainBatchButton.Click += ExplainBatchButton_Click;
+            ExplainMeanSHAPButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            ExplainMeanSHAPButton.Density = MaterialButton.MaterialButtonDensity.Default;
+            ExplainMeanSHAPButton.Depth = 0;
+            ExplainMeanSHAPButton.HighEmphasis = true;
+            ExplainMeanSHAPButton.Icon = null;
+            ExplainMeanSHAPButton.Location = new Point(4, 6);
+            ExplainMeanSHAPButton.Margin = new Padding(4, 6, 4, 6);
+            ExplainMeanSHAPButton.MouseState = MaterialSkin.MouseState.HOVER;
+            ExplainMeanSHAPButton.Name = "ExplainMeanSHAPButton";
+            ExplainMeanSHAPButton.NoAccentTextColor = Color.Empty;
+            ExplainMeanSHAPButton.Size = new Size(105, 36);
+            ExplainMeanSHAPButton.TabIndex = 0;
+            ExplainMeanSHAPButton.Text = "Mean SHAP";
+            ExplainMeanSHAPButton.Type = MaterialButton.MaterialButtonType.Contained;
+            ExplainMeanSHAPButton.UseAccentColor = false;
+            ExplainMeanSHAPButton.Click += ExplainMeanSHAPButton_Click;
+            // 
+            // ExplainSHAPButton
+            // 
+            ExplainSHAPButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            ExplainSHAPButton.Density = MaterialButton.MaterialButtonDensity.Default;
+            ExplainSHAPButton.Depth = 0;
+            ExplainSHAPButton.HighEmphasis = true;
+            ExplainSHAPButton.Icon = null;
+            ExplainSHAPButton.Location = new Point(117, 6);
+            ExplainSHAPButton.Margin = new Padding(4, 6, 4, 6);
+            ExplainSHAPButton.MouseState = MaterialSkin.MouseState.HOVER;
+            ExplainSHAPButton.Name = "ExplainSHAPButton";
+            ExplainSHAPButton.NoAccentTextColor = Color.Empty;
+            ExplainSHAPButton.Size = new Size(143, 36);
+            ExplainSHAPButton.TabIndex = 1;
+            ExplainSHAPButton.Text = "Beeswarm SHAP";
+            ExplainSHAPButton.Type = MaterialButton.MaterialButtonType.Contained;
+            ExplainSHAPButton.UseAccentColor = false;
+            ExplainSHAPButton.Click += ExplainSHAPButton_Click;
             // 
             // OutputGroupBox
             // 
@@ -195,8 +215,6 @@ namespace WinForm_RFBN_APP
             OutputGroupBox.Size = new Size(794, 364);
             OutputGroupBox.TabIndex = 2;
             OutputGroupBox.TabStop = false;
-            OutputGroupBox.Text = "Global Feature Importance (Mean |SHAP|)";
-
             // 
             // ShapChart
             // 
@@ -217,7 +235,7 @@ namespace WinForm_RFBN_APP
             ShapChart.Size = new Size(788, 340);
             ShapChart.TabIndex = 0;
             ShapChart.Text = "Global Importance Chart";
-
+            OutputGroupBox.Text = "Global Feature Importance SHAP";
             // 
             // GlobalShapPage
             // 
@@ -232,7 +250,6 @@ namespace WinForm_RFBN_APP
             ActionsGroupBox.ResumeLayout(false);
             ActionsLayout.ResumeLayout(false);
             ActionsLayout.PerformLayout();
-            OutputGroupBox.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(ShapChart)).EndInit();
             ResumeLayout(false);
         }
@@ -248,7 +265,8 @@ namespace WinForm_RFBN_APP
 
         private MaterialTextBox CsvPathTextBox;
         private MaterialTextBox SchemaTextBox;
-        private MaterialButton ExplainBatchButton;
+        private MaterialButton ExplainMeanSHAPButton;
         private Chart ShapChart; // Declared but was missing initialization
+        private MaterialButton ExplainSHAPButton;
     }
 }
