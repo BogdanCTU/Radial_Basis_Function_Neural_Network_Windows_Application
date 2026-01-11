@@ -1,14 +1,8 @@
-
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Drawing;
 using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using Source.Data;
 using Source;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace WinForm_RFBN_APP
 {
@@ -16,6 +10,7 @@ namespace WinForm_RFBN_APP
     {
         private FoodClassifier _classifier;
         private double[] _backgroundMeans; // Mean of each feature from training data
+        private double[] _factorials;      // Helper for SHAP math
 
         public ShapPage()
         {
@@ -29,12 +24,9 @@ namespace WinForm_RFBN_APP
 
             string csvPath = CsvPathTextBox.Text.Trim();
             string schema = SchemaTextBox.Text.Trim();
-            
-            if (string.IsNullOrEmpty(csvPath) || string.IsNullOrEmpty(schema))
-            {
-                MessageBox.Show("Please provide both CSV Path and Schema.");
-                return;
-            }
+
+            if (string.IsNullOrEmpty(csvPath)) csvPath = "train.csv";
+            if (string.IsNullOrEmpty(schema)) schema = "energy_kcal;protein_g;carbohydrate_g;sugar_g;total_fat_g;sat_fat_g;fiber_g;salt_g;is_healthy";
 
             ExplainButton.Enabled = false;
 
@@ -47,13 +39,15 @@ namespace WinForm_RFBN_APP
                     {
                         // Load Classifier
                         _classifier = ModelRepository.LoadClassifier("FoodClassifier_V1");
-                        
-                        // Load Background Data (Means)
-                        // Use inputs provided in UI
-                        var (inputs, _) = DataLoader.LoadCsv(csvPath, schema);
 
-                        var stats = NormalizationHelper.ComputeZScoreStats(inputs);
-                        _backgroundMeans = stats.Mean;
+                        // Load Background Data (Means)
+                        // We use the full dataset to get accurate baseline (mean) values
+                        var (inputs, _) = DataLoader.LoadCsv(csvPath, schema);
+                        if (inputs.Count > 0)
+                        {
+                            var stats = NormalizationHelper.ComputeZScoreStats(inputs);
+                            _backgroundMeans = stats.Mean;
+                        }
                     });
                 }
 
@@ -63,11 +57,23 @@ namespace WinForm_RFBN_APP
                     return;
                 }
 
-                // 3. Calculate SHAP Values (Simplified: Perturbation from Mean)
-                var shapValues = await Task.Run(() => CalculateShapValues(inputFeatures, _classifier, _backgroundMeans));
+                if (_backgroundMeans == null)
+                {
+                    MessageBox.Show("Could not calculate background means. Check CSV path.");
+                    return;
+                }
 
-                // 4. Update Chart
-                UpdateChart(shapValues);
+                // 3. Initialize Factorials for Math
+                int n = inputFeatures.Length;
+                _factorials = new double[n + 1];
+                _factorials[0] = 1;
+                for (int i = 1; i <= n; i++) _factorials[i] = i * _factorials[i - 1];
+
+                // 4. Calculate Exact SHAP Values
+                var shapValues = await Task.Run(() => CalculateExactShapValues(inputFeatures, _classifier, _backgroundMeans));
+
+                // 5. Update Chart
+                UpdateChart(shapValues, inputFeatures);
 
             }
             catch (Exception ex)
@@ -80,66 +86,129 @@ namespace WinForm_RFBN_APP
             }
         }
 
-        private double[] CalculateShapValues(double[] input, FoodClassifier classifier, double[] backgroundMeans)
+        // ---------------------------------------------------------
+        // LOGIC: EXACT SHAPLEY CALCULATION (Coalition Method)
+        // ---------------------------------------------------------
+        private double[] CalculateExactShapValues(double[] instance, FoodClassifier classifier, double[] backgroundMeans)
         {
-            double basePrediction = classifier.Predict(input);
-            double[] shapValues = new double[input.Length];
+            int n = instance.Length;
+            double[] shapValues = new double[n];
+            int[] featureIndices = Enumerable.Range(0, n).ToArray();
 
-            for (int i = 0; i < input.Length; i++)
+            // Loop through every feature 'j' to find its contribution
+            for (int j = 0; j < n; j++)
             {
-                // Create perturbed input: Replace feature i with background mean
-                double[] perturbedInput = (double[])input.Clone();
-                perturbedInput[i] = backgroundMeans[i];
+                // Identify all other features
+                var otherFeatures = featureIndices.Where(idx => idx != j).ToArray();
 
-                double perturbedPrediction = classifier.Predict(perturbedInput);
+                // Iterate through all possible subsets (2^(N-1))
+                int subsetCount = 1 << otherFeatures.Length;
 
-                // Contribution = Actual - Perturbed
-                // If Actual is HIGHER (closer to 1/Healthy) than Perturbed, feature contributed Positively.
-                // If Actual is LOWER, feature contributed Negatively.
-                shapValues[i] = basePrediction - perturbedPrediction;
+                for (int i = 0; i < subsetCount; i++)
+                {
+                    // Construct Subset S
+                    List<int> S = new List<int>();
+                    for (int bit = 0; bit < otherFeatures.Length; bit++)
+                    {
+                        if ((i & (1 << bit)) != 0) S.Add(otherFeatures[bit]);
+                    }
+
+                    // Weight = (|S|! * (N - |S| - 1)!) / N!
+                    int sSize = S.Count;
+                    double weight = (_factorials[sSize] * _factorials[n - sSize - 1]) / _factorials[n];
+
+                    // Prepare inputs
+                    double[] inputWith = (double[])backgroundMeans.Clone();
+                    double[] inputWithout = (double[])backgroundMeans.Clone();
+
+                    // Fill subset features with ACTUAL values
+                    foreach (int idx in S)
+                    {
+                        inputWith[idx] = instance[idx];
+                        inputWithout[idx] = instance[idx];
+                    }
+
+                    // Toggle Target Feature j
+                    inputWith[j] = instance[j];       // Present
+                    inputWithout[j] = backgroundMeans[j]; // Absent (Mean)
+
+                    // Marginal Contribution
+                    double predWith = classifier.Predict(inputWith);
+                    double predWithout = classifier.Predict(inputWithout);
+
+                    shapValues[j] += weight * (predWith - predWithout);
+                }
             }
 
             return shapValues;
         }
 
-        private void UpdateChart(double[] shapValues)
+        private void UpdateChart(double[] shapValues, double[] inputFeatures)
         {
             ShapChart.Series["ShapValues"].Points.Clear();
 
-            string[] featureNames = { "Protein", "Fat", "Carbs", "Kcal", "Fiber", "Sat. Fat", "Sugar" };
+            // Updated Schema to match Global Page (8 Items)
+            string[] featureNames = { "Energy", "Protein", "Carbs", "Sugar", "Fat", "Sat. Fat", "Fiber", "Salt" };
+
+            // Find min/max for chart scaling
+            double minVal = Math.Min(0, shapValues.Min());
+            double maxVal = Math.Max(0, shapValues.Max());
 
             for (int i = 0; i < shapValues.Length; i++)
             {
-                var pointIndex = ShapChart.Series["ShapValues"].Points.AddXY(featureNames[i], shapValues[i]);
+                // Ensure we don't crash if array lengths mismatch
+                string name = i < featureNames.Length ? featureNames[i] : $"Feat {i}";
+
+                var pointIndex = ShapChart.Series["ShapValues"].Points.AddXY(name, shapValues[i]);
                 var point = ShapChart.Series["ShapValues"].Points[pointIndex];
 
-                // Color Coding: Red = Negative Impact (Towards 0/Unhealthy), Green = Positive Impact (Towards 1/Healthy)
-                // Note: The logic depends on what 1 represents. 
-                // Assuming 1 = Healthy.
-                // Positive SHAP = Pushed towards Healthy.
-                // Negative SHAP = Pushed towards Unhealthy.
-                
+                // Color Logic: 
+                // Green = Pushes prediction HIGHER (Healthy)
+                // Red   = Pushes prediction LOWER (Unhealthy)
                 point.Color = shapValues[i] >= 0 ? Color.ForestGreen : Color.Crimson;
+
+                // Detailed Label
                 point.Label = $"{shapValues[i]:F4}";
+                point.ToolTip = $"{name}\nInput Value: {inputFeatures[i]:F2}\nSHAP Impact: {shapValues[i]:F4}";
             }
-            
-            ShapChart.ChartAreas[0].AxisX.Interval = 1;
-            ShapChart.ChartAreas[0].AxisY.Title = "Impact on Prediction";
-            ShapChart.ChartAreas[0].RecalculateAxesScale();
+
+            var area = ShapChart.ChartAreas[0];
+            area.AxisX.Interval = 1;
+            area.AxisY.Title = "Impact (SHAP Value)";
+
+            // Add a horizontal line at 0 for clarity
+            StripLine zeroLine = new StripLine();
+            zeroLine.Interval = 0;
+            zeroLine.StripWidth = 0.001;
+            zeroLine.BackColor = Color.Black;
+            zeroLine.IntervalOffset = 0;
+            area.AxisY.StripLines.Clear();
+            area.AxisY.StripLines.Add(zeroLine);
+
+            area.RecalculateAxesScale();
         }
 
         private bool ParseInputs(out double[] inputs)
         {
-            inputs = new double[7];
+            // IMPORTANT: Updated to size 8 to match schema
+            inputs = new double[8];
             try
             {
-                inputs[0] = Parse(ProteinBox.Text);
-                inputs[1] = Parse(FatBox.Text);
-                inputs[2] = Parse(CarbBox.Text);
-                inputs[3] = Parse(KcalBox.Text);
-                inputs[4] = Parse(FiberBox.Text);
-                inputs[5] = Parse(SatFatBox.Text);
-                inputs[6] = Parse(SugarBox.Text);
+                // Map UI Boxes to Schema Order:
+                // energy_kcal;protein_g;carbohydrate_g;sugar_g;total_fat_g;sat_fat_g;fiber_g;salt_g
+
+                inputs[0] = Parse(KcalBox.Text);    // Energy
+                inputs[1] = Parse(ProteinBox.Text); // Protein
+                inputs[2] = Parse(CarbBox.Text);    // Carbs
+                inputs[3] = Parse(SugarBox.Text);   // Sugar
+                inputs[4] = Parse(FatBox.Text);     // Total Fat
+                inputs[5] = Parse(SatFatBox.Text);  // Sat Fat
+                inputs[6] = Parse(FiberBox.Text);   // Fiber
+
+                // Check if you have a SaltBox in your UI. If not, default to 0 or 0.5 (Mean)
+                // inputs[7] = Parse(SaltBox.Text); 
+                inputs[7] = 0.5; // Placeholder if UI is missing the box
+
                 return true;
             }
             catch
@@ -152,7 +221,11 @@ namespace WinForm_RFBN_APP
         private double Parse(string text)
         {
             if (string.IsNullOrWhiteSpace(text)) return 0.0;
-            return double.Parse(text, CultureInfo.InvariantCulture);
+            if (double.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out double result))
+            {
+                return result;
+            }
+            return 0.0;
         }
     }
 }
