@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using ML_Project_Windows_App;
 using Source;
-using Source.Data; // Ensure this namespace exists for CrossValidator
 
 namespace Source
 {
@@ -98,8 +97,6 @@ namespace Source
             Console.WriteLine($"Candidates within tolerance: {acceptable.Count}");
 
             // 3. Prioritize Simplicity
-            // Notebook Logic:
-            // sort_values(by=['depth', 'leaf', 'split'], ascending=[True, False, False])
             var bestModel = acceptable
                 .OrderBy(r => r.Depth)            // Minimize Depth (Simpler)
                 .ThenByDescending(r => r.Leaf)    // Maximize Leaf Size (Robustness)

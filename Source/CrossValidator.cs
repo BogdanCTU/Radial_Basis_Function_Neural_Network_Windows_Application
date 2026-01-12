@@ -39,42 +39,12 @@ namespace Source
                 int valStart = i * foldSize;
                 int valEnd = (i == k - 1) ? n : valStart + foldSize; // Handle remainder in last fold
                 
-                var valIndices = indices.Skip(valStart).Take(valEnd - valStart).ToHashSet();
+                // Split data using the shuffled indices
+                var trainInputs = indices.Where((_, idx) => idx < valStart || idx >= valEnd).Select(idx => inputs[idx]).ToList();
+                var trainTargets = indices.Where((_, idx) => idx < valStart || idx >= valEnd).Select(idx => targets[idx]).ToList();
                 
-                // Split data
-                var trainInputs = new List<double[]>();
-                var trainTargets = new List<double>();
-                var valInputs = new List<double[]>();
-                var valTargets = new List<double>();
-
-                for (int j = 0; j < n; j++)
-                {
-                    int idx = indices[j];
-                    if (valIndices.Contains(idx)) // Correction: indices[j] is the original index
-                    {
-                        valInputs.Add(inputs[idx]);
-                        valTargets.Add(targets[idx]);
-                    }
-                    else
-                    {
-                        trainInputs.Add(inputs[idx]);
-                        trainTargets.Add(targets[idx]);
-                    }
-                }
-                
-                // Wait, logic check: indices is a shuffled list of 0..n-1.
-                // valIndices contains the *values* from that slice, which ARE the original indices.
-                // So checking `if (valIndices.Contains(indices[j]))` is redundant if I just loop through `indices` and check position.
-                // Simpler: Just rely on the slice logic from `indices` list directly.
-                
-                // Re-implementation for clarity:
-                // Train indices are everything NOT in the validation slice of the shuffled list.
-                // But efficient logic:
-                trainInputs = indices.Where((_, idx) => idx < valStart || idx >= valEnd).Select(idx => inputs[idx]).ToList();
-                trainTargets = indices.Where((_, idx) => idx < valStart || idx >= valEnd).Select(idx => targets[idx]).ToList();
-                
-                valInputs = indices.Skip(valStart).Take(valEnd - valStart).Select(idx => inputs[idx]).ToList();
-                valTargets = indices.Skip(valStart).Take(valEnd - valStart).Select(idx => targets[idx]).ToList();
+                var valInputs = indices.Skip(valStart).Take(valEnd - valStart).Select(idx => inputs[idx]).ToList();
+                var valTargets = indices.Skip(valStart).Take(valEnd - valStart).Select(idx => targets[idx]).ToList();
 
 
                 // Train and Predict on this fold
