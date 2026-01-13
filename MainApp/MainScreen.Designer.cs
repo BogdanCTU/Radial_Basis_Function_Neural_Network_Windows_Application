@@ -22,6 +22,7 @@ namespace WinForm_RFBN_APP
         private MaterialSkin.Controls.MaterialButton CrossValidationPageButton;
         private MaterialSkin.Controls.MaterialButton ShapPageButton;
         private MaterialSkin.Controls.MaterialButton GlobalShapPageButton;
+        private MaterialSkin.Controls.MaterialButton NetworkVisualisationPageButton;
 
         #endregion
 
@@ -59,6 +60,7 @@ namespace WinForm_RFBN_APP
             CrossValidationPageButton = new MaterialSkin.Controls.MaterialButton();
             ShapPageButton = new MaterialSkin.Controls.MaterialButton();
             GlobalShapPageButton = new MaterialSkin.Controls.MaterialButton();
+            NetworkVisualisationPageButton = new MaterialSkin.Controls.MaterialButton();
             ControlPanel = new Panel();
             NavigationPanel.SuspendLayout();
             SuspendLayout();
@@ -71,6 +73,7 @@ namespace WinForm_RFBN_APP
             NavigationPanel.Controls.Add(CrossValidationPageButton);
             NavigationPanel.Controls.Add(ShapPageButton);
             NavigationPanel.Controls.Add(GlobalShapPageButton);
+            NavigationPanel.Controls.Add(NetworkVisualisationPageButton);
             NavigationPanel.Dock = DockStyle.Top;
             NavigationPanel.Location = new Point(0, 0);
             NavigationPanel.Name = "NavigationPanel";
@@ -199,6 +202,26 @@ namespace WinForm_RFBN_APP
             GlobalShapPageButton.UseVisualStyleBackColor = true;
             GlobalShapPageButton.Click += GlobalShapPageButton_Click;
             // 
+            // NetworkVisualisationPageButton
+            // 
+            NetworkVisualisationPageButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            NetworkVisualisationPageButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            NetworkVisualisationPageButton.Depth = 0;
+            NetworkVisualisationPageButton.HighEmphasis = true;
+            NetworkVisualisationPageButton.Icon = null;
+            NetworkVisualisationPageButton.Location = new Point(865, 6);
+            NetworkVisualisationPageButton.Margin = new Padding(4, 6, 4, 6);
+            NetworkVisualisationPageButton.MouseState = MaterialSkin.MouseState.HOVER;
+            NetworkVisualisationPageButton.Name = "NetworkVisualisationPageButton";
+            NetworkVisualisationPageButton.NoAccentTextColor = Color.Empty;
+            NetworkVisualisationPageButton.Size = new Size(119, 36);
+            NetworkVisualisationPageButton.TabIndex = 7;
+            NetworkVisualisationPageButton.Text = "Visualize";
+            NetworkVisualisationPageButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            NetworkVisualisationPageButton.UseAccentColor = false;
+            NetworkVisualisationPageButton.UseVisualStyleBackColor = true;
+            NetworkVisualisationPageButton.Click += NetworkVisualisationPageButton_Click;
+            // 
             // ControlPanel
             // 
             ControlPanel.Dock = DockStyle.Fill;
@@ -282,6 +305,14 @@ namespace WinForm_RFBN_APP
         private void GlobalShapPageButton_Click(object sender, EventArgs e)
         {
             LoadPageWithButtonControl(new GlobalShapPage(), GlobalShapPageButton);
+        }
+
+        ///<summary>
+        /// Handles the click event for the Network Visualization Page button.
+        ///</summary>
+        private void NetworkVisualisationPageButton_Click(object sender, EventArgs e)
+        {
+            LoadPageWithButtonControl(new NetworkVisualizationPage(), NetworkVisualisationPageButton);
         }
 
         #endregion
