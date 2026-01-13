@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Text;
+using System.Text.Json;
+using ML_Project_Windows_App;
 
 namespace Source.Data
 {
@@ -24,6 +26,7 @@ namespace Source.Data
             var entity = new TrainedModel
             {
                 ModelName = name,
+                ModelType = "RBF",
                 InputCount = network.InputCount,
                 HiddenCount = network.HiddenCount,
                 Bias = network.Bias,
@@ -41,6 +44,34 @@ namespace Source.Data
             db.SaveChanges();
         }
 
+        /// <summary>
+        /// Saves a Decision Tree Model
+        /// </summary>
+        public static void SaveDecisionTree(string name, DecisionTreeRegressor tree, string schema)
+        {
+            using var db = new AppDbContext();
+            db.Database.EnsureCreated();
+
+            var options = new JsonSerializerOptions { WriteIndented = false };
+            string json = JsonSerializer.Serialize(tree, options);
+
+            var entity = new TrainedModel
+            {
+                ModelName = name,
+                ModelType = "DT",
+                SerializedData = json,
+                InputSchema = schema,
+                
+                // RBF fields safely ignored or 0
+                InputCount = 0,
+                HiddenCount = 0,
+                Bias = 0
+            };
+
+            db.TrainedModels.Add(entity);
+            db.SaveChanges();
+        }
+
         public static FoodClassifier LoadClassifier(string name)
         {
             using var db = new AppDbContext();
@@ -48,7 +79,7 @@ namespace Source.Data
 
             var entity = db.TrainedModels
                 .OrderByDescending(m => m.CreatedAt)
-                .FirstOrDefault(m => m.ModelName == name);
+                .FirstOrDefault(m => m.ModelName == name && m.ModelType == "RBF");
 
             if (entity == null) return null;
 
@@ -68,11 +99,49 @@ namespace Source.Data
             return new FoodClassifier(network, means, stdDevs, schema);
         }
 
+        public static ScorePredictor LoadScorePredictor(string name)
+        {
+            using var db = new AppDbContext();
+            db.Database.EnsureCreated();
+
+             var entity = db.TrainedModels
+                .OrderByDescending(m => m.CreatedAt)
+                .FirstOrDefault(m => m.ModelName == name && m.ModelType == "DT");
+
+            if (entity == null) return null;
+
+            if (string.IsNullOrEmpty(entity.SerializedData)) return null;
+
+            try 
+            {
+                var tree = JsonSerializer.Deserialize<DecisionTreeRegressor>(entity.SerializedData);
+                string schema = entity.InputSchema ?? string.Empty;
+                return new ScorePredictor(tree, schema);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public static (string Name, string Type)? GetLatestModelInfo()
+        {
+            using var db = new AppDbContext();
+            try {
+                db.Database.EnsureCreated();
+                var entity = db.TrainedModels.OrderByDescending(m => m.CreatedAt).FirstOrDefault();
+                if (entity == null) return null;
+                return (entity.ModelName, entity.ModelType);
+            } catch { return null; }
+        }
+
         public static void ClearModel()
         {
             using var db = new AppDbContext();
-            // Delete all entries but keep DB file structure if preferred, or delete file
-            db.TrainedModels.ExecuteDelete();
+            try {
+                 db.Database.EnsureCreated();
+                 db.TrainedModels.ExecuteDelete(); 
+            } catch { /* Ignore if DB doesn't exist */ }
         }
 
         #endregion
@@ -82,6 +151,7 @@ namespace Source.Data
 
         private static string SerializeCentroids(double[][] centroids)
         {
+            if (centroids == null) return "";
             var sb = new StringBuilder();
             foreach (var c in centroids)
             {
@@ -93,6 +163,7 @@ namespace Source.Data
 
         private static double[][] DeserializeCentroids(string data)
         {
+            if (string.IsNullOrEmpty(data)) return new double[0][];
             var rows = data.Split('|');
             var result = new double[rows.Length][];
             for (int i = 0; i < rows.Length; i++)

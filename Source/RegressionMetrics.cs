@@ -20,7 +20,7 @@ namespace Source
 
         public override string ToString()
         {
-            return $"MAE:   {MAE:F4}\n" +
+            return $"\nMAE:   {MAE:F4}\n" +
                    $"RMSE:  {RMSE:F4}\n" +
                    $"NRMSE: {NRMSE:P2}\n" +
                    $"R2:    {R2:F4}";

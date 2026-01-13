@@ -6,7 +6,6 @@ using ML_Project_Windows_App;
 using Source;
 using Source.Data;
 
-
 namespace ConsoleRunner
 {
     class Program

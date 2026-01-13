@@ -19,6 +19,8 @@ namespace Source.Data
         [Key]
         public int Id { get; set; }
         public string ModelName { get; set; } = string.Empty;
+        public string ModelType { get; set; } 
+        public string? SerializedData { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public string WeightsData { get; set; } = string.Empty;

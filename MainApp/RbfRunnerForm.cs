@@ -1,40 +1,24 @@
 using MaterialSkin;
 using MaterialSkin.Controls;
-using System;
-using System.Drawing;
 using System.Windows.Forms;
 
 namespace WinForm_RFBN_APP
 {
-    public partial class MainScreen : MaterialForm
+    public partial class RbfRunnerForm : MaterialForm
     {
-        public MainScreen()
+        public RbfRunnerForm()
         {
             InitializeComponent();
+            
             var materialSkinManager = MaterialSkinManager.Instance;
             materialSkinManager.AddFormToManage(this);
             materialSkinManager.Theme = MaterialSkinManager.Themes.LIGHT;
+            // Unified Design: Match SelectionForm (Blue)
             materialSkinManager.ColorScheme = new ColorScheme(
                 Primary.Blue600, Primary.Blue700,
                 Primary.Blue200, Accent.LightBlue200,
                 TextShade.WHITE
             );
-        }
-
-        private void btnRbf_Click(object sender, EventArgs e)
-        {
-            this.Hide();
-            var form = new RbfRunnerForm();
-            form.ShowDialog();
-            this.Close();
-        }
-
-        private void btnDt_Click(object sender, EventArgs e)
-        {
-            this.Hide();
-            var form = new DtRunnerForm();
-            form.ShowDialog();
-            this.Close();
         }
     }
 }

@@ -57,20 +57,22 @@ namespace WinForm_RFBN_APP
         {
             if (string.IsNullOrEmpty(inputString)) return;
 
-            // 1. Load the Wrapper
-            // Note: In a real app, you might cache this field so you don't reload DB on every click.
-            FoodClassifier classifier = ModelRepository.LoadClassifier("FoodClassifier_V1");
-
-            if (classifier == null)
+            // 1. Determine Active Model
+            var modelInfo = ModelRepository.GetLatestModelInfo();
+            if (modelInfo == null)
             {
-                RichTextBoxOutput.AppendText("Model not found. Please train the model first.\r\n");
+                RichTextBoxOutput.AppendText("Model not found. Please train a model first.\n");
                 return;
             }
 
-            // 2. Parse User Input (Raw numbers)
+            string modelName = modelInfo.Value.Name;
+            string modelType = modelInfo.Value.Type;
+
+             // 2. Parse User Input (Raw numbers)
             double[] rawInput;
             try
             {
+                 // Handle spaces/commas if user typed nicely, but splitting by ; is default
                 rawInput = inputString.Split(';')
                     .Select(val => double.Parse(val.Trim(), CultureInfo.InvariantCulture))
                     .ToArray();
@@ -88,17 +90,41 @@ namespace WinForm_RFBN_APP
                 return;
             }
 
-            // 3. Predict
-            // The classifier handles normalization internally now!
-            double score = classifier.Predict(rawInput);
-
-            string label = score >= 0.5 ? "HEALTHY (1)" : "UNHEALTHY (0)";
-
-            // 4. Output
+            // 3. Predict & Output
             RichTextBoxOutput.AppendText("--------------------------------------------------\n");
+            RichTextBoxOutput.AppendText($"Active Model: {modelName} ({modelType})\n");
             RichTextBoxOutput.AppendText($"Input: {inputString}\n");
-            RichTextBoxOutput.AppendText($"Score: {score:F4}\n");
-            RichTextBoxOutput.AppendText($"Prediction: {label}\n");
+
+            if (modelType == "RBF")
+            {
+                var classifier = ModelRepository.LoadClassifier(modelName);
+                if (classifier != null)
+                {
+                    if (rawInput.Length != 7) 
+                    {
+                         RichTextBoxOutput.AppendText($"[Warning] RBF expects 7 inputs, got {rawInput.Length}.\n");
+                    }
+                    
+                    double score = classifier.Predict(rawInput);
+                    string label = score >= 0.5 ? "HEALTHY (1)" : "UNHEALTHY (0)";
+                    RichTextBoxOutput.AppendText($"Score: {score:F4}\n");
+                    RichTextBoxOutput.AppendText($"Prediction: {label}\n");
+                }
+            }
+            else // DT
+            {
+                var predictor = ModelRepository.LoadScorePredictor(modelName);
+                if (predictor != null)
+                {
+                    if (rawInput.Length != 6) 
+                    {
+                         RichTextBoxOutput.AppendText($"[Warning] DT expects 6 inputs, got {rawInput.Length}.\n");
+                    }
+
+                    double score = predictor.Predict(rawInput);
+                    RichTextBoxOutput.AppendText($"Predicted Score: {score:F4}\n");
+                }
+            }
         }
 
         #endregion
