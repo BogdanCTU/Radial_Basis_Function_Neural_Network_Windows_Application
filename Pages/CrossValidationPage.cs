@@ -90,6 +90,7 @@ namespace WinForm_RFBN_APP
                 var recList = new List<double>();
                 var f1List = new List<double>();
                 var aucList = new List<double>();
+                var auprcList = new List<double>(); // New: Area Under Precision-Recall Curve
 
                 // [SHUFFLING]
                 // Create a list of indices (0 to N-1) and shuffle them randomly.
@@ -146,7 +147,7 @@ namespace WinForm_RFBN_APP
                     // TP = True Positive, FP = False Positive, TN = True Negative, FN = False Negative
                     int tp = 0, fp = 0, tn = 0, fn = 0;
 
-                    // Store tuples of (Probability Score, Actual Class) for AUC calculation later.
+                    // Store tuples of (Probability Score, Actual Class) for AUC/AUPRC calculation.
                     var predictions = new List<(double Score, int Actual)>();
 
                     for (int i = 0; i < testInputs.Count; i++)
@@ -175,6 +176,7 @@ namespace WinForm_RFBN_APP
                     double rec = (tp + fn) > 0 ? (double)tp / (tp + fn) : 0;                     // Recall (Sensitivity/TPR)
                     double f1 = (prec + rec) > 0 ? 2 * (prec * rec) / (prec + rec) : 0;          // F-Measure (Harmonic mean of Prec/Rec)
                     double auc = CalculateAuc(predictions);                                      // Area Under ROC Curve
+                    double auprc = CalculateAuprc(predictions);                                  // Area Under Precision-Recall Curve
 
                     // Add this fold's results to the lists
                     accList.Add(acc);
@@ -182,32 +184,51 @@ namespace WinForm_RFBN_APP
                     recList.Add(rec);
                     f1List.Add(f1);
                     aucList.Add(auc);
+                    auprcList.Add(auprc);
                 }
 
                 // 4. STATISTICAL AGGREGATION
-                // Calculate Mean and Standard Deviation across the K folds.
-                // This tells us how "stable" the model is. A high SD means performance varies wildly depending on the data split.
+                // Calculate Mean, Standard Deviation, and Confidence Intervals across the K folds.
                 var sAcc = CalculateStats(accList);
                 var sPrec = CalculateStats(precList);
                 var sRec = CalculateStats(recList);
                 var sF1 = CalculateStats(f1List);
                 var sAuc = CalculateStats(aucList);
+                var sAuprc = CalculateStats(auprcList);
 
                 // 5. UPDATE UI
-                // Update the RichTextBox with the results formatted specifically for your LaTeX table.
+                // Update the RichTextBox with the results formatted as a table.
                 Invoke(() =>
                 {
                     LogRichTextBox.SelectionColor = Color.Blue;
                     LogRichTextBox.AppendText($"Configuration: {neuronCount} Neurons\r\n");
                     LogRichTextBox.SelectionColor = Color.Black;
 
-                    // Format: "Metric: Mean% ± SD%" (e.g., Accuracy: 94.91% ± 0.21%)
-                    LogRichTextBox.AppendText(string.Format("{0,-12} {1,8:P2} ± {2,6:P2}\r\n", "Accuracy:", sAcc.Mean, sAcc.StdDev));
-                    LogRichTextBox.AppendText(string.Format("{0,-12} {1,8:P2} ± {2,6:P2}\r\n", "Precision:", sPrec.Mean, sPrec.StdDev));
-                    LogRichTextBox.AppendText(string.Format("{0,-12} {1,8:P2} ± {2,6:P2}\r\n", "Recall:", sRec.Mean, sRec.StdDev));
-                    LogRichTextBox.AppendText(string.Format("{0,-12} {1,8:P2} ± {2,6:P2}\r\n", "F-Measure:", sF1.Mean, sF1.StdDev));
-                    LogRichTextBox.AppendText(string.Format("{0,-12} {1,8:F4} ± {2,6:F4}\r\n", "AUC-ROC:", sAuc.Mean, sAuc.StdDev));
-                    LogRichTextBox.AppendText("--------------------------------------------------\r\n");
+                    // Table Header
+                    LogRichTextBox.AppendText(new string('-', 60) + "\r\n");
+                    LogRichTextBox.AppendText(string.Format("{0,-12} | {1,-10} | {2,-10} | {3,-18}\r\n", "Metric", "Mean", "Std Dev", "95% CI"));
+                    LogRichTextBox.AppendText(new string('-', 60) + "\r\n");
+
+                    // Helper function to print a row
+                    void PrintRow(string name, (double Mean, double StdDev, double CiLower, double CiUpper) s, bool isPercent)
+                    {
+                        string formatMean = isPercent ? $"{s.Mean,8:P2}" : $"{s.Mean,8:F4}";
+                        string formatSd = isPercent ? $"{s.StdDev,8:P2}" : $"{s.StdDev,8:F4}";
+                        string formatCi = isPercent
+                            ? $"[{s.CiLower:P2} - {s.CiUpper:P2}]"
+                            : $"[{s.CiLower:F3} - {s.CiUpper:F3}]";
+
+                        LogRichTextBox.AppendText(string.Format("{0,-12} | {1} | {2} | {3}\r\n", name, formatMean, formatSd, formatCi));
+                    }
+
+                    PrintRow("Accuracy", sAcc, true);
+                    PrintRow("Precision", sPrec, true);
+                    PrintRow("Recall", sRec, true);
+                    PrintRow("F-Measure", sF1, true);
+                    PrintRow("AUC-ROC", sAuc, false);
+                    PrintRow("AUPRC", sAuprc, false);
+
+                    LogRichTextBox.AppendText(new string('-', 60) + "\r\n\r\n");
                 });
 
                 // Track the best configuration based on Mean Accuracy
@@ -223,13 +244,7 @@ namespace WinForm_RFBN_APP
 
         // --- Helper Methods ---
 
-        // Calculates Area Under the Curve (AUC) using the Trapezoidal Rule.
-        // 1. Sorts predictions by confidence score (High confidence first).
-        // 2. Iterates through the sorted list:
-        //    - If actual is Positive (1), we move UP (TP rate increases).
-        //    - If actual is Negative (0), we move RIGHT (FP rate increases).
-        // 3. The area added at each step is calculated using the trapezoid formula.
-
+        // Calculates Area Under the ROC Curve (AUC) using the Trapezoidal Rule.
         private double CalculateAuc(List<(double Score, int Actual)> predictions)
         {
             var sorted = predictions.OrderByDescending(x => x.Score).ToList();
@@ -237,52 +252,88 @@ namespace WinForm_RFBN_APP
             long posCount = sorted.Count(x => x.Actual == 1);
             long negCount = sorted.Count(x => x.Actual == 0);
 
-            if (posCount == 0 || negCount == 0) return 0.5; // Edge case: Only one class present
+            if (posCount == 0 || negCount == 0) return 0.5; // Edge case
 
             double auc = 0;
-            double prevTpr = 0; // Previous True Positive Rate (Y-axis)
-            double prevFpr = 0; // Previous False Positive Rate (X-axis)
+            double prevTpr = 0;
+            double prevFpr = 0;
             double currentPos = 0;
             double currentNeg = 0;
 
             foreach (var p in sorted)
             {
-                if (p.Actual == 1)
-                    currentPos++;
-                else
-                    currentNeg++;
+                if (p.Actual == 1) currentPos++;
+                else currentNeg++;
 
-                double tpr = currentPos / posCount; // Current Y
-                double fpr = currentNeg / negCount; // Current X
+                double tpr = currentPos / posCount;
+                double fpr = currentNeg / negCount;
 
-                // Trapezoidal area: (Width) * (Average Height)
-                // Width = (fpr - prevFpr)
-                // Avg Height = (tpr + prevTpr) / 2.0
                 auc += (fpr - prevFpr) * (tpr + prevTpr) / 2.0;
 
                 prevTpr = tpr;
                 prevFpr = fpr;
             }
-
             return auc;
         }
 
-        // Calculates Mean and Sample Standard Deviation.
-        // Uses the formula for Sample StdDev (Divide by N-1), which is unbiased for population estimation.
-        private (double Mean, double StdDev) CalculateStats(List<double> values)
+        // Calculates Area Under the Precision-Recall Curve (AUPRC).
+        private double CalculateAuprc(List<(double Score, int Actual)> predictions)
         {
-            if (values == null || values.Count == 0) return (0, 0);
+            var sorted = predictions.OrderByDescending(x => x.Score).ToList();
+            long posCount = sorted.Count(x => x.Actual == 1);
+            if (posCount == 0) return 0;
 
-            // 1. Mean (Average)
+            double auprc = 0;
+            double currentTp = 0;
+            double currentFp = 0;
+            double prevPrec = 1.0; // PR curve typically starts at precision 1.0
+            double prevRec = 0.0;
+
+            foreach (var p in sorted)
+            {
+                if (p.Actual == 1) currentTp++;
+                else currentFp++;
+
+                double prec = currentTp / (currentTp + currentFp);
+                double rec = currentTp / posCount;
+
+                // Trapezoidal Integration
+                auprc += (rec - prevRec) * (prec + prevPrec) / 2.0;
+
+                prevPrec = prec;
+                prevRec = rec;
+            }
+            return auprc;
+        }
+
+        // Calculates Mean, Sample Standard Deviation, and 95% Confidence Interval.
+        private (double Mean, double StdDev, double CiLower, double CiUpper) CalculateStats(List<double> values)
+        {
+            if (values == null || values.Count == 0) return (0, 0, 0, 0);
+
+            // 1. Mean
             double mean = values.Average();
 
-            // 2. Sum of Squared Differences
+            // 2. Sample Standard Deviation
             double sumSquares = values.Sum(v => Math.Pow(v - mean, 2));
-
-            // 3. Standard Deviation = Sqrt( SumSquares / (N - 1) )
             double stdDev = Math.Sqrt(sumSquares / (values.Count - 1));
 
-            return (mean, stdDev);
+            // 3. Confidence Interval (95%)
+            // Formula: Mean ± (T-Value * (StdDev / Sqrt(N)))
+            double n = values.Count;
+            double standardError = stdDev / Math.Sqrt(n);
+
+            // Approximate T-Values for 95% Confidence (Two-tailed)
+            double tValue = n switch
+            {
+                5 => 2.776,  // Degrees of freedom = 4
+                10 => 2.262, // Degrees of freedom = 9
+                _ => 1.96    // Fallback to Z-score for large N
+            };
+
+            double marginOfError = tValue * standardError;
+
+            return (mean, stdDev, mean - marginOfError, mean + marginOfError);
         }
 
         // Validates that all TextBoxes contain valid numbers (int/double) within acceptable ranges.
@@ -301,7 +352,6 @@ namespace WinForm_RFBN_APP
         }
 
         // Helper to safely update UI controls from a background thread (Service).
-        // Checks InvokeRequired to avoid Cross-Thread Exceptions.
         private void Invoke(Action action)
         {
             if (this.InvokeRequired) base.Invoke(action);
