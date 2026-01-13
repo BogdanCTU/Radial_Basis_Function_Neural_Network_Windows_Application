@@ -31,15 +31,20 @@ namespace WinForm_RFBN_APP
             // Helper to safely parse text boxes to "0" if empty
             string GetVal(string text) => string.IsNullOrWhiteSpace(text) ? "0" : text.Trim();
 
-            string p = GetVal(ProteinTextBox.Text);
-            string tf = GetVal(TotalFatTextBox.Text);
-            string c = GetVal(CarbohydratesTextBox.Text);
-            string en = GetVal(KiloCaloriesTextBox.Text);
-            string fib = GetVal(FiberTextBox.Text);
-            string sf = GetVal(SaturatedFatTextBox.Text);
-            string s = GetVal(SugarTextBox.Text);
+            // 1. Gather values from UI
+            string energy = GetVal(KiloCaloriesTextBox.Text);
+            string protein = GetVal(ProteinTextBox.Text);
+            string carb = GetVal(CarbohydratesTextBox.Text);
+            string sugar = GetVal(SugarTextBox.Text);
+            string totalFat = GetVal(TotalFatTextBox.Text);
+            string satFat = GetVal(SaturatedFatTextBox.Text);
+            string fiber = GetVal(FiberTextBox.Text);
+            string salt = GetVal(SaltTextBox.Text);
 
-            string inputRaw = $"{p};{tf};{c};{en};{fib};{sf};{s}";
+            // 2. Construct string in the requested order:
+            // "energy_kcal;protein_g;carbohydrate_g;sugar_g;total_fat_g;sat_fat_g;fiber_g;salt_g"
+            string inputRaw = $"{energy};{protein};{carb};{sugar};{totalFat};{satFat};{fiber};{salt}";
+
             RunPrediction(inputRaw);
         }
 
@@ -70,9 +75,10 @@ namespace WinForm_RFBN_APP
                     .Select(val => double.Parse(val.Trim(), CultureInfo.InvariantCulture))
                     .ToArray();
 
-                if (rawInput.Length != 7)
+                // Updated validation to expect 8 values based on the new order
+                if (rawInput.Length != 8)
                 {
-                    MessageBox.Show("Expected 7 values.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Expected 8 values (Energy, Protein, Carbs, Sugar, TotalFat, SatFat, Fiber, Salt).", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
             }

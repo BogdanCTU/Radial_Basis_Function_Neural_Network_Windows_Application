@@ -53,13 +53,11 @@ namespace WinForm_RFBN_APP
         private void InitializeComponent()
         {
             NavigationPanel = new Panel();
-            ShapPageButton = new MaterialSkin.Controls.MaterialButton();
-            CrossValidationPageButton = new MaterialSkin.Controls.MaterialButton();
-            ManualTestingPageButton = new MaterialSkin.Controls.MaterialButton();
-            TrainingPageButton = new MaterialSkin.Controls.MaterialButton();
             TestingPageButton = new MaterialSkin.Controls.MaterialButton();
-            // Assuming GlobalShapPageButton is declared elsewhere or will be added to fields.
-            // Adding it here as per instruction for initialization.
+            TrainingPageButton = new MaterialSkin.Controls.MaterialButton();
+            ManualTestingPageButton = new MaterialSkin.Controls.MaterialButton();
+            CrossValidationPageButton = new MaterialSkin.Controls.MaterialButton();
+            ShapPageButton = new MaterialSkin.Controls.MaterialButton();
             GlobalShapPageButton = new MaterialSkin.Controls.MaterialButton();
             ControlPanel = new Panel();
             NavigationPanel.SuspendLayout();
@@ -78,87 +76,6 @@ namespace WinForm_RFBN_APP
             NavigationPanel.Name = "NavigationPanel";
             NavigationPanel.Size = new Size(984, 48);
             NavigationPanel.TabIndex = 0;
-            // 
-            // ShapPageButton
-            // 
-            ShapPageButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            ShapPageButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
-            ShapPageButton.Depth = 0;
-            ShapPageButton.HighEmphasis = true;
-            ShapPageButton.Icon = null;
-            ShapPageButton.Location = new Point(591, 6);
-            ShapPageButton.Margin = new Padding(4, 6, 4, 6);
-            ShapPageButton.MouseState = MaterialSkin.MouseState.HOVER;
-            ShapPageButton.Name = "ShapPageButton";
-            ShapPageButton.NoAccentTextColor = Color.Empty;
-            ShapPageButton.Size = new Size(141, 36);
-            ShapPageButton.TabIndex = 5;
-            ShapPageButton.Text = "SHAP Explainer";
-            ShapPageButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
-            ShapPageButton.UseAccentColor = false;
-            ShapPageButton.UseVisualStyleBackColor = true;
-            ShapPageButton.Click += ShapPageButton_Click;
-            // 
-            // CrossValidationPageButton
-            // 
-            CrossValidationPageButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            CrossValidationPageButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
-            CrossValidationPageButton.Depth = 0;
-            CrossValidationPageButton.HighEmphasis = true;
-            CrossValidationPageButton.Icon = null;
-            CrossValidationPageButton.Location = new Point(427, 6);
-            CrossValidationPageButton.Margin = new Padding(4, 6, 4, 6);
-            CrossValidationPageButton.MouseState = MaterialSkin.MouseState.HOVER;
-            CrossValidationPageButton.Name = "CrossValidationPageButton";
-            CrossValidationPageButton.NoAccentTextColor = Color.Empty;
-            CrossValidationPageButton.Size = new Size(156, 36);
-            CrossValidationPageButton.TabIndex = 4;
-            CrossValidationPageButton.Text = "Cross Validation";
-            CrossValidationPageButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
-            CrossValidationPageButton.UseAccentColor = false;
-            CrossValidationPageButton.UseVisualStyleBackColor = true;
-            CrossValidationPageButton.Click += CrossValidationPageButton_Click;
-            // 
-            // ManualTestingPageButton
-            // 
-            ManualTestingPageButton.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            ManualTestingPageButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            ManualTestingPageButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
-            ManualTestingPageButton.Depth = 0;
-            ManualTestingPageButton.HighEmphasis = true;
-            ManualTestingPageButton.Icon = null;
-            ManualTestingPageButton.Location = new Point(274, 6);
-            ManualTestingPageButton.Margin = new Padding(4, 6, 4, 6);
-            ManualTestingPageButton.MouseState = MaterialSkin.MouseState.HOVER;
-            ManualTestingPageButton.Name = "ManualTestingPageButton";
-            ManualTestingPageButton.NoAccentTextColor = Color.Empty;
-            ManualTestingPageButton.Size = new Size(145, 36);
-            ManualTestingPageButton.TabIndex = 2;
-            ManualTestingPageButton.Text = "Manual Testing\r\nPage";
-            ManualTestingPageButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
-            ManualTestingPageButton.UseAccentColor = false;
-            ManualTestingPageButton.UseVisualStyleBackColor = true;
-            ManualTestingPageButton.Click += ManualTestingPageButton_Click;
-            // 
-            // TrainingPageButton
-            // 
-            TrainingPageButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            TrainingPageButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
-            TrainingPageButton.Depth = 0;
-            TrainingPageButton.HighEmphasis = true;
-            TrainingPageButton.Icon = null;
-            TrainingPageButton.Location = new Point(6, 6);
-            TrainingPageButton.Margin = new Padding(4, 6, 4, 6);
-            TrainingPageButton.MouseState = MaterialSkin.MouseState.HOVER;
-            TrainingPageButton.Name = "TrainingPageButton";
-            TrainingPageButton.NoAccentTextColor = Color.Empty;
-            TrainingPageButton.Size = new Size(130, 36);
-            TrainingPageButton.TabIndex = 1;
-            TrainingPageButton.Text = "Training Page";
-            TrainingPageButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
-            TrainingPageButton.UseAccentColor = false;
-            TrainingPageButton.UseVisualStyleBackColor = true;
-            TrainingPageButton.Click += TrainingPageButton_Click;
             // 
             // TestingPageButton
             // 
@@ -181,6 +98,87 @@ namespace WinForm_RFBN_APP
             TestingPageButton.UseVisualStyleBackColor = true;
             TestingPageButton.Click += TestingPageButton_Click;
             // 
+            // TrainingPageButton
+            // 
+            TrainingPageButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            TrainingPageButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            TrainingPageButton.Depth = 0;
+            TrainingPageButton.HighEmphasis = true;
+            TrainingPageButton.Icon = null;
+            TrainingPageButton.Location = new Point(6, 6);
+            TrainingPageButton.Margin = new Padding(4, 6, 4, 6);
+            TrainingPageButton.MouseState = MaterialSkin.MouseState.HOVER;
+            TrainingPageButton.Name = "TrainingPageButton";
+            TrainingPageButton.NoAccentTextColor = Color.Empty;
+            TrainingPageButton.Size = new Size(130, 36);
+            TrainingPageButton.TabIndex = 1;
+            TrainingPageButton.Text = "Training Page";
+            TrainingPageButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            TrainingPageButton.UseAccentColor = false;
+            TrainingPageButton.UseVisualStyleBackColor = true;
+            TrainingPageButton.Click += TrainingPageButton_Click;
+            // 
+            // ManualTestingPageButton
+            // 
+            ManualTestingPageButton.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            ManualTestingPageButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            ManualTestingPageButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            ManualTestingPageButton.Depth = 0;
+            ManualTestingPageButton.HighEmphasis = true;
+            ManualTestingPageButton.Icon = null;
+            ManualTestingPageButton.Location = new Point(274, 6);
+            ManualTestingPageButton.Margin = new Padding(4, 6, 4, 6);
+            ManualTestingPageButton.MouseState = MaterialSkin.MouseState.HOVER;
+            ManualTestingPageButton.Name = "ManualTestingPageButton";
+            ManualTestingPageButton.NoAccentTextColor = Color.Empty;
+            ManualTestingPageButton.Size = new Size(145, 36);
+            ManualTestingPageButton.TabIndex = 2;
+            ManualTestingPageButton.Text = "Manual Testing\r\nPage";
+            ManualTestingPageButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            ManualTestingPageButton.UseAccentColor = false;
+            ManualTestingPageButton.UseVisualStyleBackColor = true;
+            ManualTestingPageButton.Click += ManualTestingPageButton_Click;
+            // 
+            // CrossValidationPageButton
+            // 
+            CrossValidationPageButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            CrossValidationPageButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            CrossValidationPageButton.Depth = 0;
+            CrossValidationPageButton.HighEmphasis = true;
+            CrossValidationPageButton.Icon = null;
+            CrossValidationPageButton.Location = new Point(427, 6);
+            CrossValidationPageButton.Margin = new Padding(4, 6, 4, 6);
+            CrossValidationPageButton.MouseState = MaterialSkin.MouseState.HOVER;
+            CrossValidationPageButton.Name = "CrossValidationPageButton";
+            CrossValidationPageButton.NoAccentTextColor = Color.Empty;
+            CrossValidationPageButton.Size = new Size(156, 36);
+            CrossValidationPageButton.TabIndex = 4;
+            CrossValidationPageButton.Text = "Cross Validation";
+            CrossValidationPageButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            CrossValidationPageButton.UseAccentColor = false;
+            CrossValidationPageButton.UseVisualStyleBackColor = true;
+            CrossValidationPageButton.Click += CrossValidationPageButton_Click;
+            // 
+            // ShapPageButton
+            // 
+            ShapPageButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            ShapPageButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            ShapPageButton.Depth = 0;
+            ShapPageButton.HighEmphasis = true;
+            ShapPageButton.Icon = null;
+            ShapPageButton.Location = new Point(591, 6);
+            ShapPageButton.Margin = new Padding(4, 6, 4, 6);
+            ShapPageButton.MouseState = MaterialSkin.MouseState.HOVER;
+            ShapPageButton.Name = "ShapPageButton";
+            ShapPageButton.NoAccentTextColor = Color.Empty;
+            ShapPageButton.Size = new Size(141, 36);
+            ShapPageButton.TabIndex = 5;
+            ShapPageButton.Text = "SHAP Explainer";
+            ShapPageButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            ShapPageButton.UseAccentColor = false;
+            ShapPageButton.UseVisualStyleBackColor = true;
+            ShapPageButton.Click += ShapPageButton_Click;
+            // 
             // GlobalShapPageButton
             // 
             GlobalShapPageButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
@@ -193,14 +191,13 @@ namespace WinForm_RFBN_APP
             GlobalShapPageButton.MouseState = MaterialSkin.MouseState.HOVER;
             GlobalShapPageButton.Name = "GlobalShapPageButton";
             GlobalShapPageButton.NoAccentTextColor = Color.Empty;
-            GlobalShapPageButton.Size = new Size(130, 36);
+            GlobalShapPageButton.Size = new Size(119, 36);
             GlobalShapPageButton.TabIndex = 6;
             GlobalShapPageButton.Text = "Global SHAP";
             GlobalShapPageButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
             GlobalShapPageButton.UseAccentColor = false;
             GlobalShapPageButton.UseVisualStyleBackColor = true;
             GlobalShapPageButton.Click += GlobalShapPageButton_Click;
-
             // 
             // ControlPanel
             // 
@@ -218,7 +215,7 @@ namespace WinForm_RFBN_APP
             Controls.Add(ControlPanel);
             Controls.Add(NavigationPanel);
             Name = "MainScreen";
-            Text = "Material Form";
+            Text = "Machine Learning Demo V1";
             NavigationPanel.ResumeLayout(false);
             NavigationPanel.PerformLayout();
             ResumeLayout(false);
