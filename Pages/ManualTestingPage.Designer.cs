@@ -32,10 +32,10 @@
             MainLayout = new TableLayoutPanel();
             InputGroupBox = new GroupBox();
             InputLayout = new TableLayoutPanel();
+            KiloCaloriesTextBox = new MaterialSkin.Controls.MaterialTextBox();
             materialLabel1 = new MaterialSkin.Controls.MaterialLabel();
             FullInputTextBox = new MaterialSkin.Controls.MaterialTextBox();
             materialLabel2 = new MaterialSkin.Controls.MaterialLabel();
-            materialLabel3 = new MaterialSkin.Controls.MaterialLabel();
             ProteinTextBox = new MaterialSkin.Controls.MaterialTextBox();
             materialLabel4 = new MaterialSkin.Controls.MaterialLabel();
             TotalFatTextBox = new MaterialSkin.Controls.MaterialTextBox();
@@ -48,7 +48,9 @@
             materialLabel6 = new MaterialSkin.Controls.MaterialLabel();
             FiberTextBox = new MaterialSkin.Controls.MaterialTextBox();
             materialLabel9 = new MaterialSkin.Controls.MaterialLabel();
-            KiloCaloriesTextBox = new MaterialSkin.Controls.MaterialTextBox();
+            SaltTextBox = new MaterialSkin.Controls.MaterialTextBox();
+            materialLabel10 = new MaterialSkin.Controls.MaterialLabel();
+            materialLabel3 = new MaterialSkin.Controls.MaterialLabel();
             ActionsGroupBox = new GroupBox();
             ActionsLayout = new FlowLayoutPanel();
             TestFullButton = new MaterialSkin.Controls.MaterialButton();
@@ -77,7 +79,7 @@
             MainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 340F));
             MainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
             MainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            MainLayout.Size = new Size(700, 400);
+            MainLayout.Size = new Size(700, 600);
             MainLayout.TabIndex = 0;
             // 
             // InputGroupBox
@@ -99,10 +101,10 @@
             InputLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             InputLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120F));
             InputLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            InputLayout.Controls.Add(KiloCaloriesTextBox, 3, 5);
             InputLayout.Controls.Add(materialLabel1, 0, 0);
             InputLayout.Controls.Add(FullInputTextBox, 1, 0);
             InputLayout.Controls.Add(materialLabel2, 0, 1);
-            InputLayout.Controls.Add(materialLabel3, 0, 2);
             InputLayout.Controls.Add(ProteinTextBox, 1, 2);
             InputLayout.Controls.Add(materialLabel4, 2, 2);
             InputLayout.Controls.Add(TotalFatTextBox, 3, 2);
@@ -115,7 +117,9 @@
             InputLayout.Controls.Add(materialLabel6, 2, 4);
             InputLayout.Controls.Add(FiberTextBox, 3, 4);
             InputLayout.Controls.Add(materialLabel9, 0, 5);
-            InputLayout.Controls.Add(KiloCaloriesTextBox, 1, 5);
+            InputLayout.Controls.Add(SaltTextBox, 1, 5);
+            InputLayout.Controls.Add(materialLabel10, 2, 5);
+            InputLayout.Controls.Add(materialLabel3, 0, 2);
             InputLayout.Dock = DockStyle.Fill;
             InputLayout.Location = new Point(3, 21);
             InputLayout.Name = "InputLayout";
@@ -128,6 +132,24 @@
             InputLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 55F));
             InputLayout.Size = new Size(688, 310);
             InputLayout.TabIndex = 0;
+            // 
+            // KiloCaloriesTextBox
+            // 
+            KiloCaloriesTextBox.AnimateReadOnly = false;
+            KiloCaloriesTextBox.BorderStyle = BorderStyle.None;
+            KiloCaloriesTextBox.Depth = 0;
+            KiloCaloriesTextBox.Dock = DockStyle.Fill;
+            KiloCaloriesTextBox.Font = new Font("Microsoft Sans Serif", 12F);
+            KiloCaloriesTextBox.LeadingIcon = null;
+            KiloCaloriesTextBox.Location = new Point(467, 253);
+            KiloCaloriesTextBox.MaxLength = 50;
+            KiloCaloriesTextBox.MouseState = MaterialSkin.MouseState.OUT;
+            KiloCaloriesTextBox.Multiline = false;
+            KiloCaloriesTextBox.Name = "KiloCaloriesTextBox";
+            KiloCaloriesTextBox.Size = new Size(218, 50);
+            KiloCaloriesTextBox.TabIndex = 18;
+            KiloCaloriesTextBox.Text = "113.0";
+            KiloCaloriesTextBox.TrailingIcon = null;
             // 
             // materialLabel1
             // 
@@ -158,7 +180,7 @@
             FullInputTextBox.Name = "FullInputTextBox";
             FullInputTextBox.Size = new Size(562, 50);
             FullInputTextBox.TabIndex = 1;
-            FullInputTextBox.Text = "7.41;25.93;55.56;481;3.7;7.41;33.33";
+            FullInputTextBox.Text = "117.0;4.76;15.75;3.66;4.03;0.73;3.3;0.5225";
             FullInputTextBox.TrailingIcon = null;
             // 
             // materialLabel2
@@ -175,19 +197,6 @@
             materialLabel2.TabIndex = 2;
             materialLabel2.Text = "Custom input:";
             // 
-            // materialLabel3
-            // 
-            materialLabel3.Anchor = AnchorStyles.Left;
-            materialLabel3.AutoSize = true;
-            materialLabel3.Depth = 0;
-            materialLabel3.Font = new Font("Roboto", 14F, FontStyle.Regular, GraphicsUnit.Pixel);
-            materialLabel3.Location = new Point(3, 103);
-            materialLabel3.MouseState = MaterialSkin.MouseState.HOVER;
-            materialLabel3.Name = "materialLabel3";
-            materialLabel3.Size = new Size(51, 19);
-            materialLabel3.TabIndex = 3;
-            materialLabel3.Text = "Protein";
-            // 
             // ProteinTextBox
             // 
             ProteinTextBox.AnimateReadOnly = false;
@@ -203,7 +212,7 @@
             ProteinTextBox.Name = "ProteinTextBox";
             ProteinTextBox.Size = new Size(218, 50);
             ProteinTextBox.TabIndex = 4;
-            ProteinTextBox.Text = "7.41";
+            ProteinTextBox.Text = "1.61";
             ProteinTextBox.TrailingIcon = null;
             // 
             // materialLabel4
@@ -234,7 +243,7 @@
             TotalFatTextBox.Name = "TotalFatTextBox";
             TotalFatTextBox.Size = new Size(218, 50);
             TotalFatTextBox.TabIndex = 5;
-            TotalFatTextBox.Text = "25.93";
+            TotalFatTextBox.Text = "11.29";
             TotalFatTextBox.TrailingIcon = null;
             // 
             // materialLabel5
@@ -265,7 +274,7 @@
             SaturatedFatTextBox.Name = "SaturatedFatTextBox";
             SaturatedFatTextBox.Size = new Size(218, 50);
             SaturatedFatTextBox.TabIndex = 6;
-            SaturatedFatTextBox.Text = "7.41";
+            SaturatedFatTextBox.Text = "4.03";
             SaturatedFatTextBox.TrailingIcon = null;
             // 
             // materialLabel8
@@ -296,7 +305,7 @@
             CarbohydratesTextBox.Name = "CarbohydratesTextBox";
             CarbohydratesTextBox.Size = new Size(218, 50);
             CarbohydratesTextBox.TabIndex = 10;
-            CarbohydratesTextBox.Text = "55.56";
+            CarbohydratesTextBox.Text = "4.84";
             CarbohydratesTextBox.TrailingIcon = null;
             // 
             // materialLabel7
@@ -327,7 +336,7 @@
             SugarTextBox.Name = "SugarTextBox";
             SugarTextBox.Size = new Size(218, 50);
             SugarTextBox.TabIndex = 11;
-            SugarTextBox.Text = "33.33";
+            SugarTextBox.Text = "1.61";
             SugarTextBox.TrailingIcon = null;
             // 
             // materialLabel6
@@ -358,7 +367,7 @@
             FiberTextBox.Name = "FiberTextBox";
             FiberTextBox.Size = new Size(218, 50);
             FiberTextBox.TabIndex = 12;
-            FiberTextBox.Text = "3.7";
+            FiberTextBox.Text = "0.0";
             FiberTextBox.TrailingIcon = null;
             // 
             // materialLabel9
@@ -370,27 +379,53 @@
             materialLabel9.Location = new Point(3, 270);
             materialLabel9.MouseState = MaterialSkin.MouseState.HOVER;
             materialLabel9.Name = "materialLabel9";
-            materialLabel9.Size = new Size(89, 19);
+            materialLabel9.Size = new Size(29, 19);
             materialLabel9.TabIndex = 15;
-            materialLabel9.Text = "Kilo Calories";
+            materialLabel9.Text = "Salt";
             // 
-            // KiloCaloriesTextBox
+            // SaltTextBox
             // 
-            KiloCaloriesTextBox.AnimateReadOnly = false;
-            KiloCaloriesTextBox.BorderStyle = BorderStyle.None;
-            KiloCaloriesTextBox.Depth = 0;
-            KiloCaloriesTextBox.Dock = DockStyle.Fill;
-            KiloCaloriesTextBox.Font = new Font("Microsoft Sans Serif", 12F);
-            KiloCaloriesTextBox.LeadingIcon = null;
-            KiloCaloriesTextBox.Location = new Point(123, 253);
-            KiloCaloriesTextBox.MaxLength = 50;
-            KiloCaloriesTextBox.MouseState = MaterialSkin.MouseState.OUT;
-            KiloCaloriesTextBox.Multiline = false;
-            KiloCaloriesTextBox.Name = "KiloCaloriesTextBox";
-            KiloCaloriesTextBox.Size = new Size(218, 50);
-            KiloCaloriesTextBox.TabIndex = 16;
-            KiloCaloriesTextBox.Text = "481";
-            KiloCaloriesTextBox.TrailingIcon = null;
+            SaltTextBox.AnimateReadOnly = false;
+            SaltTextBox.BorderStyle = BorderStyle.None;
+            SaltTextBox.Depth = 0;
+            SaltTextBox.Dock = DockStyle.Fill;
+            SaltTextBox.Font = new Font("Microsoft Sans Serif", 12F);
+            SaltTextBox.LeadingIcon = null;
+            SaltTextBox.Location = new Point(123, 253);
+            SaltTextBox.MaxLength = 50;
+            SaltTextBox.MouseState = MaterialSkin.MouseState.OUT;
+            SaltTextBox.Multiline = false;
+            SaltTextBox.Name = "SaltTextBox";
+            SaltTextBox.Size = new Size(218, 50);
+            SaltTextBox.TabIndex = 16;
+            SaltTextBox.Text = "1.6925";
+            SaltTextBox.TrailingIcon = null;
+            // 
+            // materialLabel10
+            // 
+            materialLabel10.Anchor = AnchorStyles.Left;
+            materialLabel10.AutoSize = true;
+            materialLabel10.Depth = 0;
+            materialLabel10.Font = new Font("Roboto", 14F, FontStyle.Regular, GraphicsUnit.Pixel);
+            materialLabel10.Location = new Point(347, 270);
+            materialLabel10.MouseState = MaterialSkin.MouseState.HOVER;
+            materialLabel10.Name = "materialLabel10";
+            materialLabel10.Size = new Size(89, 19);
+            materialLabel10.TabIndex = 17;
+            materialLabel10.Text = "Kilo Calories";
+            // 
+            // materialLabel3
+            // 
+            materialLabel3.Anchor = AnchorStyles.Left;
+            materialLabel3.AutoSize = true;
+            materialLabel3.Depth = 0;
+            materialLabel3.Font = new Font("Roboto", 14F, FontStyle.Regular, GraphicsUnit.Pixel);
+            materialLabel3.Location = new Point(3, 103);
+            materialLabel3.MouseState = MaterialSkin.MouseState.HOVER;
+            materialLabel3.Name = "materialLabel3";
+            materialLabel3.Size = new Size(51, 19);
+            materialLabel3.TabIndex = 3;
+            materialLabel3.Text = "Protein";
             // 
             // ActionsGroupBox
             // 
@@ -461,7 +496,7 @@
             OutputGroupBox.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             OutputGroupBox.Location = new Point(3, 413);
             OutputGroupBox.Name = "OutputGroupBox";
-            OutputGroupBox.Size = new Size(694, 1);
+            OutputGroupBox.Size = new Size(694, 184);
             OutputGroupBox.TabIndex = 2;
             OutputGroupBox.TabStop = false;
             OutputGroupBox.Text = "Logs";
@@ -472,7 +507,7 @@
             RichTextBoxOutput.Font = new Font("Segoe UI", 9F);
             RichTextBoxOutput.Location = new Point(3, 21);
             RichTextBoxOutput.Name = "RichTextBoxOutput";
-            RichTextBoxOutput.Size = new Size(688, 0);
+            RichTextBoxOutput.Size = new Size(688, 160);
             RichTextBoxOutput.TabIndex = 1;
             RichTextBoxOutput.Text = "";
             // 
@@ -482,7 +517,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(MainLayout);
             Name = "ManualTestingPage";
-            Size = new Size(700, 400);
+            Size = new Size(700, 600);
             MainLayout.ResumeLayout(false);
             InputGroupBox.ResumeLayout(false);
             InputLayout.ResumeLayout(false);
@@ -522,7 +557,9 @@
         private MaterialSkin.Controls.MaterialTextBox SugarTextBox;
         private MaterialSkin.Controls.MaterialTextBox CarbohydratesTextBox;
         private MaterialSkin.Controls.MaterialLabel materialLabel8;
-        private MaterialSkin.Controls.MaterialTextBox KiloCaloriesTextBox;
+        private MaterialSkin.Controls.MaterialTextBox SaltTextBox;
         private MaterialSkin.Controls.MaterialLabel materialLabel9;
+        private MaterialSkin.Controls.MaterialLabel materialLabel10;
+        private MaterialSkin.Controls.MaterialTextBox KiloCaloriesTextBox;
     }
 }

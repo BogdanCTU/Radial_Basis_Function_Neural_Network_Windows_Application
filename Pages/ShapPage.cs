@@ -197,17 +197,14 @@ namespace WinForm_RFBN_APP
                 // Map UI Boxes to Schema Order:
                 // energy_kcal;protein_g;carbohydrate_g;sugar_g;total_fat_g;sat_fat_g;fiber_g;salt_g
 
-                inputs[0] = Parse(KcalBox.Text);    // Energy
-                inputs[1] = Parse(ProteinBox.Text); // Protein
-                inputs[2] = Parse(CarbBox.Text);    // Carbs
-                inputs[3] = Parse(SugarBox.Text);   // Sugar
-                inputs[4] = Parse(FatBox.Text);     // Total Fat
-                inputs[5] = Parse(SatFatBox.Text);  // Sat Fat
-                inputs[6] = Parse(FiberBox.Text);   // Fiber
-
-                // Check if you have a SaltBox in your UI. If not, default to 0 or 0.5 (Mean)
-                // inputs[7] = Parse(SaltBox.Text); 
-                inputs[7] = 0.5; // Placeholder if UI is missing the box
+                inputs[0] = Parse(KcalBox.Text);       // Energy
+                inputs[1] = Parse(ProteinBox.Text);    // Protein
+                inputs[2] = Parse(CarbBox.Text);       // Carbs
+                inputs[3] = Parse(SugarBox.Text);      // Sugar
+                inputs[4] = Parse(FatBox.Text);        // Total Fat
+                inputs[5] = Parse(SatFatBox.Text);     // Sat Fat
+                inputs[6] = Parse(FiberBox.Text);      // Fiber
+                inputs[7] = Parse(SaltTextBox.Text);   // Salt
 
                 return true;
             }

@@ -12,8 +12,8 @@ namespace WinForm_RFBN_APP
         private double[] _backgroundMeans;
         private double[] _factorials;
 
-        // 500 samples is statistically sufficient to represent the Mean of 80k rows
-        private const int MAX_SAMPLE_SIZE = 500;
+        // 1000 samples is statistically sufficient to represent the Mean of 80k rows
+        private const int MAX_SAMPLE_SIZE = 1000;
 
         public GlobalShapPage()
         {

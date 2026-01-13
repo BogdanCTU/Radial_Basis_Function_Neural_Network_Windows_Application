@@ -26,6 +26,7 @@ namespace WinForm_RFBN_APP
             MainLayout = new TableLayoutPanel();
             ConfigGroupBox = new GroupBox();
             ConfigLayout = new TableLayoutPanel();
+            SaltTextBox = new MaterialSkin.Controls.MaterialTextBox();
             CsvPathTextBox = new MaterialSkin.Controls.MaterialTextBox();
             SchemaTextBox = new MaterialSkin.Controls.MaterialTextBox();
             ProteinBox = new MaterialSkin.Controls.MaterialTextBox();
@@ -60,7 +61,7 @@ namespace WinForm_RFBN_APP
             MainLayout.Location = new Point(0, 0);
             MainLayout.Name = "MainLayout";
             MainLayout.RowCount = 3;
-            MainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 484F));
+            MainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 531F));
             MainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 76F));
             MainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             MainLayout.Size = new Size(800, 750);
@@ -73,7 +74,7 @@ namespace WinForm_RFBN_APP
             ConfigGroupBox.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             ConfigGroupBox.Location = new Point(3, 3);
             ConfigGroupBox.Name = "ConfigGroupBox";
-            ConfigGroupBox.Size = new Size(794, 478);
+            ConfigGroupBox.Size = new Size(794, 525);
             ConfigGroupBox.TabIndex = 0;
             ConfigGroupBox.TabStop = false;
             ConfigGroupBox.Text = "SHAP Configuration & Inputs";
@@ -82,6 +83,7 @@ namespace WinForm_RFBN_APP
             // 
             ConfigLayout.ColumnCount = 1;
             ConfigLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150F));
+            ConfigLayout.Controls.Add(SaltTextBox, 0, 9);
             ConfigLayout.Controls.Add(CsvPathTextBox, 1, 0);
             ConfigLayout.Controls.Add(SchemaTextBox, 1, 1);
             ConfigLayout.Controls.Add(ProteinBox, 1, 2);
@@ -94,7 +96,7 @@ namespace WinForm_RFBN_APP
             ConfigLayout.Dock = DockStyle.Fill;
             ConfigLayout.Location = new Point(3, 21);
             ConfigLayout.Name = "ConfigLayout";
-            ConfigLayout.RowCount = 9;
+            ConfigLayout.RowCount = 10;
             ConfigLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
             ConfigLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
             ConfigLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
@@ -104,8 +106,28 @@ namespace WinForm_RFBN_APP
             ConfigLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
             ConfigLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
             ConfigLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
-            ConfigLayout.Size = new Size(788, 454);
+            ConfigLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            ConfigLayout.Size = new Size(788, 501);
             ConfigLayout.TabIndex = 0;
+            // 
+            // SaltTextBox
+            // 
+            SaltTextBox.AnimateReadOnly = false;
+            SaltTextBox.BorderStyle = BorderStyle.None;
+            SaltTextBox.Depth = 0;
+            SaltTextBox.Dock = DockStyle.Fill;
+            SaltTextBox.Font = new Font("Microsoft Sans Serif", 12F);
+            SaltTextBox.Hint = "Salt";
+            SaltTextBox.LeadingIcon = null;
+            SaltTextBox.Location = new Point(3, 453);
+            SaltTextBox.MaxLength = 50;
+            SaltTextBox.MouseState = MaterialSkin.MouseState.OUT;
+            SaltTextBox.Multiline = false;
+            SaltTextBox.Name = "SaltTextBox";
+            SaltTextBox.Size = new Size(782, 50);
+            SaltTextBox.TabIndex = 9;
+            SaltTextBox.Text = "0.02";
+            SaltTextBox.TrailingIcon = null;
             // 
             // CsvPathTextBox
             // 
@@ -123,7 +145,7 @@ namespace WinForm_RFBN_APP
             CsvPathTextBox.Name = "CsvPathTextBox";
             CsvPathTextBox.Size = new Size(782, 50);
             CsvPathTextBox.TabIndex = 0;
-            CsvPathTextBox.Text = "train_80k.csv";
+            CsvPathTextBox.Text = "train.csv";
             CsvPathTextBox.TrailingIcon = null;
             // 
             // SchemaTextBox
@@ -142,7 +164,7 @@ namespace WinForm_RFBN_APP
             SchemaTextBox.Name = "SchemaTextBox";
             SchemaTextBox.Size = new Size(782, 50);
             SchemaTextBox.TabIndex = 1;
-            SchemaTextBox.Text = "PROTEIN;TOTAL_FAT;CARBS;ENERGY;FIBER;SATURATED_FAT;SUGARS;CLASSIFICATION";
+            SchemaTextBox.Text = "energy_kcal;protein_g;carbohydrate_g;sugar_g;total_fat_g;sat_fat_g;fiber_g;salt_g;is_healthy";
             SchemaTextBox.TrailingIcon = null;
             // 
             // ProteinBox
@@ -283,7 +305,7 @@ namespace WinForm_RFBN_APP
             ActionsGroupBox.Controls.Add(ActionsLayout);
             ActionsGroupBox.Dock = DockStyle.Fill;
             ActionsGroupBox.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            ActionsGroupBox.Location = new Point(3, 487);
+            ActionsGroupBox.Location = new Point(3, 534);
             ActionsGroupBox.Name = "ActionsGroupBox";
             ActionsGroupBox.Size = new Size(794, 70);
             ActionsGroupBox.TabIndex = 1;
@@ -323,9 +345,9 @@ namespace WinForm_RFBN_APP
             OutputGroupBox.Controls.Add(ShapChart);
             OutputGroupBox.Dock = DockStyle.Fill;
             OutputGroupBox.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            OutputGroupBox.Location = new Point(3, 563);
+            OutputGroupBox.Location = new Point(3, 610);
             OutputGroupBox.Name = "OutputGroupBox";
-            OutputGroupBox.Size = new Size(794, 184);
+            OutputGroupBox.Size = new Size(794, 137);
             OutputGroupBox.TabIndex = 2;
             OutputGroupBox.TabStop = false;
             OutputGroupBox.Text = "SHAP Explainability Chart";
@@ -381,5 +403,6 @@ namespace WinForm_RFBN_APP
         private MaterialSkin.Controls.MaterialTextBox FiberBox;
         private MaterialSkin.Controls.MaterialTextBox SatFatBox;
         private MaterialSkin.Controls.MaterialTextBox SugarBox;
+        private MaterialSkin.Controls.MaterialTextBox SaltTextBox;
     }
 }
