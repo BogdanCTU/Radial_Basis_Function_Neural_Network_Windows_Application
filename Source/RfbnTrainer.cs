@@ -1,174 +1,175 @@
-﻿namespace Source
+namespace Source
 {
-    ///<summary>
-    /// Handles the training process for the RBF Network.
-    /// Training Strategy: Hybrid (Unsupervised + Supervised)
-    /// - Stage 1 (Unsupervised):</b> Find RBF centers (Centroids) using K-Means clustering;
-    /// - Stage 2 (Heuristic):</b> Calculate widths (Sigmas) based on cluster spread;
-    /// - Stage 3 (Supervised):</b> Learn output weights via Gradient Descent (Backpropagation).
-    ///</summary>
+
+    /// <summary>
+    /// Implements a Radial Basis Function (RBF) Neural Network trainer.
+    /// The training process is hybrid:
+    /// 1. Unsupervised learning (K-Means) to determine RBF centers.
+    /// 2. Heuristic method (KNN) to determine RBF widths (sigmas).
+    /// 3. Supervised learning (Gradient Descent) to optimize output weights.
+    /// </summary>
     public class RbfTrainer
     {
-        #region Fields --------------------------------------------------------------
 
-        private Random _rnd = new Random();
+        /// <summary>
+        /// Fixed seed ensures deterministic results for debugging and reproducibility.
+        /// </summary>
+        private Random _rnd = new Random(42);
 
-        #endregion
-
-
-        #region Public Methods ------------------------------------------------------
-
-        ///<summary>
-        /// Trains an RBF Network using the provided training data.
-        ///</summary>
-        ///<param name="inputs">List of input feature vectors (Normalized).</param>
-        ///<param name="targets">List of target labels (0.0 or 1.0).</param>
-        ///<param name="hiddenNeurons">Number of RBF neurons (K in K-Means).</param>
-        ///<param name="epochs">Number of passes through the training set for the supervised phase.</param>
-        ///<param name="learningRate">Initial learning rate for weight updates.</param>
-        ///<returns>A trained <see cref="RbfNetwork"/> instance.</returns>
+        /// <summary>
+        /// Trains an RBF Network using the specified hyperparameters.
+        /// </summary>
+        /// <param name="inputs">A list of input vectors (features).</param>
+        /// <param name="targets">A list of target values (0.0 to 1.0).</param>
+        /// <param name="hiddenNeurons">The number of RBF neurons (centers) to use.</param>
+        /// <param name="epochs">The number of passes through the entire training dataset.</param>
+        /// <param name="learningRate">The step size for weight updates.</param>
         public RbfNetwork Train(List<double[]> inputs, List<double> targets, int hiddenNeurons, int epochs, double learningRate)
         {
+            // Determine the dimensionality of the input data.
             int inputDim = inputs[0].Length;
             var network = new RbfNetwork(inputDim, hiddenNeurons, 1);
 
-            // ---------------------------------------------------------
-            // PHASE 1: Unsupervised Learning - Centroids
-            // ---------------------------------------------------------
-            // Use K-Means simply to find representative prototypes in the data.
-            // These form the "centers" of our RBF neurons.
+            // PHASE 1: Unsupervised Learning (Centroids)
             network.Centroids = ComputeCentroidsKMeans(inputs, hiddenNeurons);
 
-            // ---------------------------------------------------------
-            // PHASE 2: Heuristic - Sigmas
-            // ---------------------------------------------------------
-            // Calculate how "wide" each neuron should be.
-            // A common heuristic is the Root Mean Square distance of points in the cluster.
-            //
-            // CRITICAL: Since data is Z-Score normalized (mean=0, std=1), values typically range [-3, 3].
-            // If Sigma is too large (> 3.0), the Gaussian bell curve becomes almost flat across the entire data range.
-            // This causes the neuron to fire ~1.0 for everything, providing no discriminative power (Gradient Vanishing).
-            // Hence, clamp Sigma at 3.0.
-            network.Sigmas = ComputeSigmas(network.Centroids, inputs);
+            // PHASE 2: Heuristic Configuration (Sigmas)
+            network.Sigmas = ComputeSigmasKNN(network.Centroids, k: 2);
 
-            // ---------------------------------------------------------
-            // PHASE 3: Supervised Learning - Weights (Gradient Descent)
-            // ---------------------------------------------------------
-            // Now that RBF prototypes are fixed, the network behaves like a linear model (Linear Perceptron)
-            // transforming the RBF activations to the output. We optimize this with Gradient Descent.
-            
+            // PHASE 3: Supervised Learning (Weights)
+
+            // Initialize the weights connecting the hidden layer to the output node.
             network.Weights = new double[hiddenNeurons];
-            for (int i = 0; i < hiddenNeurons; i++) 
-                network.Weights[i] = (_rnd.NextDouble() * 2 - 1) * 0.1; // Init small random weights [-0.1, 0.1]
+
+            // Xavier/Glorot Initialization is used to maintain the variance of activations.
+            // Formula: Random(-1, 1) * Sqrt(6 / (fan_in + fan_out))
+            // This prevents signals from vanishing or exploding during the initial passes.
+            double initRange = Math.Sqrt(6.0 / (inputDim + hiddenNeurons));
+            for (int i = 0; i < hiddenNeurons; i++)
+            {
+                network.Weights[i] = (_rnd.NextDouble() * 2 - 1) * initRange;
+            }
+
             network.Bias = 0.0;
 
-            double currentLearningRate = learningRate;
+            // Momentum Variables Setup
+            // Momentum accumulates the gradient of past steps to smooth out the updates and escape local minima.
+            double[] weightVelocities = new double[hiddenNeurons];
+            double biasVelocity = 0, momentum = 0.9;   // Standard coefficient for momentum
 
             for (int epoch = 0; epoch < epochs; epoch++)
             {
-                // Learning Rate Decay: EXPERIMENTAL
-                // Helps convergence by taking smaller steps as we get closer to the minimum.
-                // Decays by 5% every 10 epochs.
-                //if (epoch > 0 && epoch % 10 == 0)
-                //{
-                //    currentLearningRate *= 0.95;
-                //}
-
-                double totalError = 0;
+                // Dynamic Learning Rate Decay (Simulated Annealing)
+                // The learning rate decreases over time (1 / (1 + decay * epoch)).
+                // This allows large steps initially for exploration and smaller steps later for fine-tuning.
+                double currentLr = learningRate * (1.0 / (1.0 + 0.01 * epoch));
 
                 for (int i = 0; i < inputs.Count; i++)
                 {
-                    // --- Forward Pass ---
-                    // Calculate RBF layer activations (Features for the linear layer)
+                    // Step 1: Forward Pass 
+
+                    // Calculate the activation of each hidden neuron.
                     double[] hiddenActivations = new double[hiddenNeurons];
                     for (int h = 0; h < hiddenNeurons; h++)
                     {
+                        // Calculate Euclidean Distance Squared: ||x - c||^2
                         double distSq = 0;
                         for (int d = 0; d < inputDim; d++)
                         {
                             double diff = inputs[i][d] - network.Centroids[h][d];
                             distSq += diff * diff;
                         }
-                        // Gaussian activation
+
+                        // Apply the Gaussian RBF Kernel: exp( -||x - c||^2 / (2 * sigma^2) )
+                        // This output represents the similarity between the input and the centroid.
                         hiddenActivations[h] = Math.Exp(-distSq / (2 * Math.Pow(network.Sigmas[h], 2)));
                     }
 
-                    // Calculate Output (Sigmoid)
+                    // Compute the linear combination of hidden activations and weights.
                     double linearSum = network.Bias;
-                    for (int h = 0; h < hiddenNeurons; h++) linearSum += hiddenActivations[h] * network.Weights[h];
-                    double output = 1.0 / (1.0 + Math.Exp(-linearSum));
-
-                    // --- Backward Pass (Backpropagation) ---
-                    // Loss Function: Mean Squared Error (MSE) = 0.5 * (Target - Output)^2
-                    // We want to find dError/dWeight.
-                    
-                    double error = targets[i] - output;
-                    totalError += error * error;
-
-                    // Chain Rule:
-                    // dError/dWeight = (dError/dOutput) * (dOutput/dLinearSum) * (dLinearSum/dWeight)
-                    //
-                    // 1. dError/dOutput = -(Target - Output) = -error
-                    // 2. dOutput/dLinearSum (Sigmoid Derivative) = Output * (1 - Output)
-                    //
-                    // Combine 1 & 2 to get the "Gradient" (or Delta) at the output unit:
-                    // Gradient = error * Output * (1 - Output)
-                    double gradient = error * output * (1.0 - output);
-
-                    // 3. dLinearSum/dWeight = hiddenActivation[h]
-                    // Update Rule: W_new = W_old + LearningRate * Gradient * Input(HiddenActivation)
-                    
                     for (int h = 0; h < hiddenNeurons; h++)
                     {
-                        network.Weights[h] += currentLearningRate * gradient * hiddenActivations[h];
+                        linearSum += hiddenActivations[h] * network.Weights[h];
                     }
-                    
-                    // Update Bias (Input is implicitly 1.0)
-                    network.Bias += currentLearningRate * gradient;
+
+                    // Apply the Sigmoid activation function to squash the output between 0 and 1.
+                    double output = 1.0 / (1.0 + Math.Exp(-linearSum));
+
+                    // --- 2. Backward Pass (Gradient Calculation) ---
+
+                    // The gradient is derived based on the Binary Cross-Entropy (Log Loss) function
+                    // rather than Mean Squared Error (MSE).
+                    // Derivation:
+                    // If Loss L = -[y * ln(p) + (1-y) * ln(1-p)] (where y is target, p is output)
+                    // and p = sigmoid(z)
+                    // Then the derivative dL/dz = p - y.
+                    // By defining the error term as (Target - Output), the sign is inverted for gradient ascent/addition.
+                    // This creates stronger gradients when the prediction is confident but wrong (e.g., output 0.99 for target 0).
+                    double errorGradient = (targets[i] - output);
+
+                    // --- 3. Weight Update with Momentum ---
+
+                    for (int h = 0; h < hiddenNeurons; h++)
+                    {
+                        // Calculate the delta (change) based on the Chain Rule:
+                        // dL/dw = errorGradient * activation
+                        double delta = currentLr * errorGradient * hiddenActivations[h];
+
+                        // Apply Momentum: Velocity = delta + (momentum * previous_velocity)
+                        weightVelocities[h] = delta + (momentum * weightVelocities[h]);
+
+                        // Update the weight using the calculated velocity
+                        network.Weights[h] += weightVelocities[h];
+                    }
+
+                    // Update Bias
+                    // The bias input is implicitly 1.0, so the gradient is just the errorGradient.
+                    double biasDelta = currentLr * errorGradient;
+                    biasVelocity = biasDelta + (momentum * biasVelocity);
+                    network.Bias += biasVelocity;
                 }
             }
 
             return network;
         }
 
-        #endregion
 
+        // --- Methods ---
 
-        #region Private Methods ------------------------------------------------------
-
-        ///<summary>
-        /// Performs K-Means clustering to find representative centroids.
-        ///</summary>
-        ///<param name="data">The dataset.</param>
-        ///<param name="k">Number of clusters (centroids).</param>
-        ///<returns>Array of centroid vectors.</returns>
+        /// <summary>
+        /// Computes centroids using the K-Means clustering algorithm.
+        /// </summary>
+        /// <param name="data">The dataset to cluster.</param>
+        /// <param name="k">The desired number of clusters (centroids).</param>
         private double[][] ComputeCentroidsKMeans(List<double[]> data, int k)
         {
             int dim = data[0].Length;
-            
-            // Initialization: Randomly select k data points as initial centroids (Forgy method).
             double[][] centroids = new double[k][];
+
+            // Step 1: Initialization
             for (int i = 0; i < k; i++)
                 centroids[i] = (double[])data[_rnd.Next(data.Count)].Clone();
 
             int[] assignments = new int[data.Count];
             bool changed = true;
-            int maxIter = 100;
-            int iter = 0;
+            int iter = 0, maxIter = 100;
 
-            // K-Means Algo Loop:
-            // 1. Assignment Step: Assign each point to simplest centroid.
-            // 2. Update Step: Recalculate centroid as mean of assigned points.
-            // Repeat until convergence (no changes) or max iterations.
+            // Iterate until convergence (no assignments change) or max iterations reached.
             while (changed && iter < maxIter)
             {
                 changed = false;
                 iter++;
 
-                // --- Step 1: Assignment ---
+                // Structures to accumulate sums for the mean calculation
+                int[] counts = new int[k];
+                double[][] sums = new double[k][];
+                for (int c = 0; c < k; c++) sums[c] = new double[dim];
+
+                // Step 2: Assignment
+                // Assign each data point to the nearest centroid based on Euclidean distance.
                 for (int i = 0; i < data.Count; i++)
                 {
-                    int bestCluster = -1;
+                    int bestCluster = 0;
                     double bestDist = double.MaxValue;
 
                     for (int c = 0; c < k; c++)
@@ -179,114 +180,89 @@
                             double diff = data[i][d] - centroids[c][d];
                             dist += diff * diff;
                         }
-                        if (dist < bestDist)
-                        {
-                            bestDist = dist;
-                            bestCluster = c;
-                        }
+                        if (dist < bestDist) { bestDist = dist; bestCluster = c; }
                     }
 
+                    // Check if the cluster assignment has changed
                     if (assignments[i] != bestCluster)
                     {
                         assignments[i] = bestCluster;
                         changed = true;
                     }
+
+                    // Accumulate sum and count for the Update step immediately (single-pass optimization).
+                    counts[bestCluster]++;
+                    for (int d = 0; d < dim; d++) sums[bestCluster][d] += data[i][d];
                 }
 
-                // --- Step 2: Update Centroids ---
-                int[] counts = new int[k];
-                double[][] sums = new double[k][];
-                for (int c = 0; c < k; c++) sums[c] = new double[dim];
-
-                // Accumulate sums
-                for (int i = 0; i < data.Count; i++)
-                {
-                    int cluster = assignments[i];
-                    counts[cluster]++;
-                    for (int d = 0; d < dim; d++)
-                        sums[cluster][d] += data[i][d];
-                }
-
-                // Compute means
+                // Step 3: Update
+                // Recalculate centroids by taking the mean of all points assigned to the cluster.
                 for (int c = 0; c < k; c++)
                 {
                     if (counts[c] > 0)
-                        for (int d = 0; d < dim; d++)
-                            centroids[c][d] = sums[c][d] / counts[c];
+                    {
+                        for (int d = 0; d < dim; d++) centroids[c][d] = sums[c][d] / counts[c];
+                    }
+                    else
+                    {
+                        // Handle "Dead Cluster" problem:
+                        // If a centroid has no assigned points, relocate it to a random data point
+                        // to re-enter the competition.
+                        centroids[c] = (double[])data[_rnd.Next(data.Count)].Clone();
+                    }
                 }
             }
             return centroids;
         }
 
-        ///<summary>
-        /// Computes the width (Sigma) for each RBF neuron.
-        ///</summary>
-        ///<param name="centroids">The computed centroids.</param>
-        ///<param name="inputs">The dataset.</param>
-        ///<returns>Array of sigma values.</returns>
-        private double[] ComputeSigmas(double[][] centroids, List<double[]> inputs)
+        /// <summary>
+        /// Calculates the width (Sigma) for each RBF neuron using a K-Nearest Neighbors heuristic.
+        /// </summary>
+        /// <param name="centroids">The identified centers of the RBF neurons.</param>
+        /// <param name="k">The number of nearest neighbors to average distance over.</param>
+        private double[] ComputeSigmasKNN(double[][] centroids, int k)
         {
-            int k = centroids.Length;
+            int n = centroids.Length;
             int dim = centroids[0].Length;
-            double[] sigmas = new double[k];
+            double[] sigmas = new double[n];
 
-            // 1. Assign every input to its nearest centroid to form clusters
-            List<double>[] clusterDistances = new List<double>[k];
-            for (int i = 0; i < k; i++) clusterDistances[i] = new List<double>();
+            if (n == 1) return new double[] { 1.0 };
 
-            foreach (var row in inputs)
+            for (int i = 0; i < n; i++)
             {
-                int bestCentroid = -1;
-                double minDistSq = double.MaxValue;
-
-                for (int c = 0; c < k; c++)
+                // Step 1: Calculate distances to all other centroids
+                var distances = new List<double>();
+                for (int j = 0; j < n; j++)
                 {
+                    if (i == j) continue;
+
                     double distSq = 0;
                     for (int d = 0; d < dim; d++)
                     {
-                        double diff = row[d] - centroids[c][d];
+                        double diff = centroids[i][d] - centroids[j][d];
                         distSq += diff * diff;
                     }
-                    if (distSq < minDistSq)
-                    {
-                        minDistSq = distSq;
-                        bestCentroid = c;
-                    }
+                    distances.Add(Math.Sqrt(distSq));
                 }
-                // Save the squared distance for variance calculation
-                clusterDistances[bestCentroid].Add(minDistSq);
-            }
 
-            // 2. Calculate Sigma as the root mean square distance of the cluster
-            for (int i = 0; i < k; i++)
-            {
-                if (clusterDistances[i].Count > 1)
-                {
-                    double sumSq = clusterDistances[i].Sum();
-                    // Sigma = Sqrt(Avg Squared Distance)
-                    double calculatedSigma = Math.Sqrt(sumSq / clusterDistances[i].Count);
+                distances.Sort();
 
-                    // SAFETY CLAMP: 
-                    // In Z-Score space, a Sigma > 3.0 means the neuron is "flat" over the whole data range.
-                    // We clamp it to 3.0 to force the neuron to be useful.
-                    if (calculatedSigma > 3.0) calculatedSigma = 3.0;
+                // Step 2: Calculate the average distance to the closest 'k' centroids.
+                // This adapts the width to the local density of neurons;
+                // dense areas get smaller sigmas (narrower Gaussians), sparse areas get larger sigmas.
+                double avgDist = distances.Take(k).Average();
 
-                    // Prevent overfitting (too sharp)
-                    if (calculatedSigma < -3.0) calculatedSigma = -3.0;
+                sigmas[i] = avgDist;
 
-                    sigmas[i] = calculatedSigma;
-                }
-                else
-                {
-                    // Fallback for dead neurons (0 or 1 data point)
-                    sigmas[i] = 1.0;
-                }
+                // Step 3: Safety Clamping
+                // Prevent numerical instability or vanishing gradients by restricting
+                // sigma to a reasonable range suitable for normalized data (Z-Score).
+                if (sigmas[i] < 0.1) sigmas[i] = 0.1;
+                if (sigmas[i] > 3.0) sigmas[i] = 3.0;
             }
 
             return sigmas;
         }
-
-        #endregion
-
     }
+
 }
