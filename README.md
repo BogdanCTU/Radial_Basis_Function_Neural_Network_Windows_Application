@@ -26,26 +26,36 @@ A robust **Radial Basis Function Network (RBFN)** built entirely **from scratch*
 
 ## 🧠 Model Architecture: RBF Neural Network
 
-The model is a 3-layer feed-forward network tailored for binary classification.
+The model is a 3-layer feed-forward network tailored for binary classification, implemented from scratch without external ML frameworks.
 
 ### 1. Input Layer
 Accepts a vector of nutritional features. The dimension is dynamic based on user selection (e.g., Protein, Fat, Sugar, etc.).
-* **Preprocessing:** All inputs are Z-Score normalized before entering the network:
+* **Preprocessing:** All inputs are Z-Score normalized before entering the network to prevent neuron saturation:
     $$x_{norm} = \frac{x - \mu}{\sigma}$$
 
 ### 2. Hidden Layer (RBF Kernels)
-Instead of standard dot-product neurons, this layer uses **Gaussian Radial Basis Functions**. Each neuron acts as a prototype for a specific cluster of data.
+Instead of standard dot-product neurons, this layer uses **Gaussian Radial Basis Functions**. Each neuron acts as a local prototype for a specific region of the feature space.
 * **Activation Function:** Gaussian
-    $$\phi(x) = e^{-\frac{||x - c||^2}{2\sigma^2}}$$
+    $$\phi_j(x) = e^{-\frac{||x - \mu_j||^2}{2\sigma_j^2}}$$
     * $x$: Input vector
-    * $c$: Centroid (learned via K-Means)
-    * $\sigma$: Spread/Width of the Gaussian
+    * $\mu_j$: Centroid vector (learned via Unsupervised K-Means)
+    * $\sigma_j$: Spread/Width (learned via **K-Nearest Neighbors** heuristic)
 
-### 3. Output Layer (Logistic Regression)
+### 3. Output Layer (Probabilistic Classification)
 A single neuron aggregates the RBF activations to produce a probability score (0 to 1).
 * **Aggregation:** Linear weighted sum of hidden outputs + bias.
 * **Activation Function:** Sigmoid
-    $$y = \frac{1}{1 + e^{-\sum (w_i \cdot \phi_i) + b}}$$
+    $$y = \frac{1}{1 + e^{-(\sum w_j \phi_j(x) + b)}}$$
+
+---
+
+### 🚀 Hybrid Training Strategy
+
+The network is trained in three distinct phases to optimize performance:
+
+1.  **Unsupervised Clustering (Centroids):** Uses **K-Means Clustering** to position RBF centroids ($\mu$) at the centers of data density.
+2.  **Statistical Heuristic (Sigmas):** Uses a **K-Nearest Neighbors (KNN)** rule ($k=2$) to calculate the spread ($\sigma$). This ensures smooth overlap between neurons, preventing gaps in the decision boundary.
+3.  **Supervised Learning (Weights):** The output weights are trained using **Stochastic Gradient Descent (SGD) with Momentum** ($\alpha=0.9$) to minimize **Binary Cross-Entropy Loss**, ensuring high recall and faster convergence.
 
 ---
 
