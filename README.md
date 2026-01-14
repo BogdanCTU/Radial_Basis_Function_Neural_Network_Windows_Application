@@ -10,11 +10,14 @@ A robust **Radial Basis Function Network (RBFN)** built entirely **from scratch*
 
 ## 🚀 Key Features
 
-* **From-Scratch Implementation:** The entire Neural Network logic (Forward Pass, Backpropagation, Activation Functions) is hand-coded in C#.
-* **Hybrid Training Algorithm:**
-    * **Unsupervised Phase:** K-Means Clustering determines hidden neuron centroids.
-    * **Heuristic Phase:** Sigma ($\sigma$) values calculated via average centroid distance.
-    * **Supervised Phase:** Gradient Descent optimizes output weights using a Sigmoid activation.
+* **From-Scratch Implementation:**
+    *   **RBF Network:** Hybrid training (K-Means + GD) for classification.
+    *   **Decision Tree Regressor:** ID3/CART-style recursive splitting algorithm for regression tasks.
+* **Explainable AI (LIME):** Implements Local Interpretable Model-agnostic Explanations to visualise feature importance for individual predictions.
+* **Hyperparameter Optimization:** Built-in **Grid Search** with Cross-Validation to automatically find the best model parameters (Depth, Split Size, Leaf Size).
+* **Dual Interface:**
+    *   **WinForms GUI:** User-friendly interface for training and management.
+    *   **Console Runner:** Advanced CLI for experimentation, optimization, and batch processing.
 * **Dynamic Data Loading:** Capable of parsing CSVs with customizable schemas (column selection) at runtime.
 * **Persistent Models:** Trains models and saves weights, stats, and schemas to a local SQLite database (`food_classifier.db`).
 * **Data Normalization:** Built-in Z-Score normalization pipeline ensures statistical stability.
@@ -52,20 +55,26 @@ The core logic is isolated in the `Source` folder, separating the math from the 
 
 ### 🔹 Core ML Engine
 * **`RbfNetwork.cs`**: The data structure holding Centroids, Sigmas, and Weights. Contains the `Forward()` method for prediction.
+* **`DecisionTree.cs`**: Recursive structure for regression trees, supporting custom split criteria.
 * **`RbfTrainer.cs`**: Orchestrates the training pipeline:
     1.  Runs **K-Means** to find centroids ($c$).
     2.  Computes standard deviation for $\sigma$.
     3.  Runs **Gradient Descent** to minimize Squared Error on the output weights.
 * **`FoodClassifier.cs`**: A high-level wrapper that combines the `RbfNetwork` with `NormalizationStats`. This ensures that any raw input provided by the user is automatically normalized using the *exact* stats from the training set before prediction.
+* **`LimeExplainer.cs`**: Generates local perturbations to explain model predictions (LIME).
+* **`GridSearchOptimizer.cs`**: Performs exhaustive search over hyperparameter grids using Cross-Validation.
 
 ### 🔹 Data Management
-* **`DataLoader.cs`**: Dynamically parses CSV files based on a user-defined schema string (e.g., `"PROTEIN;FAT;CLASS"`).
+* **`DataLoader.cs`**: Dynamically parses CSV files based on a user-defined schema string (e.g., `"energy_kcal;protein_g;carbohydrate_g;sugar_g;total_fat_g;sat_fat_g;fiber_g;salt_g;is_healthy"`).
 * **`NormalizationHelper.cs`**: math utility for computing Means and Standard Deviations (Z-Scores) and serializing them for storage.
 * **`ModelRepository.cs`**: Handles SQLite operations using Entity Framework Core to save/load trained models.
 
+### 🔹 Console Runner
+* **`Program.cs`**: A CLI entry point that exposes advanced experimentation features not found in the GUI (LIME, Optimization).
+
 ---
 
-## 📊 Performance Results
+<!-- ## 📊 Performance Results
 
 The model was tested on a held-out dataset of **20,000 records** (separate from the 80k training set). The from-scratch implementation achieved near-perfect classification for this specific domain.
 
@@ -85,7 +94,7 @@ The model was tested on a held-out dataset of **20,000 records** (separate from 
 
 ```
 
----
+--- -->
 
 ## 🛠️ Installation & Usage
 
@@ -106,11 +115,16 @@ Open `WinForm_RFBN_APP.sln` in Visual Studio and build the project to restore Nu
 3. **Run**
 Start the application. The SQLite database `food_classifier.db` will be created automatically.
 
-### How to Train
+### How to Train (GUI)
 1. Navigate to the **Training Page**.
-2. Enter your desired schema (e.g., `PROTEIN;TOTAL_FAT;CARBS;ENERGY;FIBER;SATURATED_FAT;SUGARS;CLASSIFICATION`).
-3. Set Hyperparameters (e.g., 25 Hidden Neurons, 100 Epochs, LR 0.01).
-4. Click **Train**.
+2. Select **Model Type** (RBF Network or Decision Tree).
+3. Enter your desired schema (e.g., `energy_kcal;protein_g;carbohydrate_g;sugar_g;total_fat_g;sat_fat_g;fiber_g;salt_g;is_healthy`).
+4. Set Hyperparameters (e.g., 25 Hidden Neurons, 100 Epochs, LR 0.01).
+5. Click **Train**.
+
+### How to Use Console Runner
+1. Run `dotnet run --project ConsoleRunner/ConsoleRunner.csproj`.
+2. Use the menu to switch between **Classification (RBF)** and **Regression (DT)** mode.
 
 ---
 
@@ -119,5 +133,6 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
-## 👨‍💻 Author
+## 👨‍💻 Authors
 **Todoran C. Bogdan**
+**Bogdan Purdea**
